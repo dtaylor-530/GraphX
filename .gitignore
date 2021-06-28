@@ -118,3 +118,4 @@ UpgradeLog*.XML
 
 .ionide
 .vs
+/UpgradeLog.htm

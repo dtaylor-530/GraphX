@@ -20,8 +20,9 @@ namespace Graph.Bayesian.WPF.Controls
         }
 
         private readonly EllipseGeometry particlePath;
-        private Path ellipsePath;
+        private readonly Path ellipsePath;
         private Path journeyPath;
+
         public static readonly DependencyProperty PointProperty = DependencyProperty.Register("Point", typeof(object), typeof(TravellerControl), new PropertyMetadata(default(Point), Changed));
         public static readonly DependencyProperty DurationProperty = DependencyProperty.Register("Duration", typeof(TimeSpan), typeof(TravellerControl), new PropertyMetadata(TimeSpan.FromSeconds(2)));
         public static readonly DependencyProperty RadiusYProperty = DependencyProperty.Register("RadiusY", typeof(double), typeof(TravellerControl), new PropertyMetadata(5d));

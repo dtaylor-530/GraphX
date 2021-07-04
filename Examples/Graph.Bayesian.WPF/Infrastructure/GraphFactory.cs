@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Windows.Documents;
 using Graph.Bayesian.WPF.Models;
 using Graph.Bayesian.WPF.Models.Edges;
-using Graph.Bayesian.WPF.Models.Vertexs;
 using Graph.Bayesian.WPF.Models.Vertices;
-using Graph.Bayesian.WPF.ViewModel;
+using Graph.Bayesian.WPF.Models.Vertices.History;
 
 namespace Graph.Bayesian.WPF.Infrastructure
 {
@@ -26,14 +24,26 @@ namespace Graph.Bayesian.WPF.Infrastructure
         {
             var dataGraph = new Models.Graph();
 
-            var historyInputVertex = new HistoryInputVertex();
+            var historyInputVertex = new HistoryIOVertex();
             dataGraph.AddVertex(historyInputVertex);
 
             var historyVertex = new HistoryVertex();
             dataGraph.AddVertex(historyVertex);
 
-            var dataEdge5 = new OneWayToTargetEdge(historyInputVertex, historyVertex);
-            dataGraph.AddEdge(dataEdge5);
+            var historyCurrentVertex = new HistoryCurrentVertex();
+            dataGraph.AddVertex(historyCurrentVertex);    
+            
+            var movementVertex = new MovementVertex();
+            dataGraph.AddVertex(movementVertex);
+
+            var dataEdge5 = new UnFilteredEdge(historyInputVertex, historyVertex);
+            dataGraph.AddEdge(dataEdge5);    
+            
+            var dataEdge6 = new OneWayToTargetEdge(historyVertex, historyCurrentVertex);
+            dataGraph.AddEdge(dataEdge6);  
+            
+            var dataEdge7 = new UnFilteredEdge(movementVertex, historyVertex);
+            dataGraph.AddEdge(dataEdge7);
 
             return dataGraph;
         }

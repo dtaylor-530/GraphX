@@ -3,20 +3,17 @@ using System.Reactive;
 using System.Windows.Input;
 using Graph.Bayesian.WPF.Infrastructure;
 
-namespace Graph.Bayesian.WPF.Models
+namespace Graph.Bayesian.WPF.Models.Vertices
 {
-
-
     public class DataInputVertex : Vertex
     {
         private int input;
-
 
         public DataInputVertex()
         {
             ClickCommand = ReactiveUI.ReactiveCommand.Create<Unit, Unit>(a =>
             {
-                this.OutMessages.OnNext(new DataMessage<DataVertex.IntData>(this.ID.ToString(), string.Empty, DateTime.Now, new(this.ID, Input)));
+                Out.OnNext(new DataMessage<DataVertex.IntData>(ID.ToString(), string.Empty, DateTime.Now, new(ID, Input)));
 
                 return a;
             });
@@ -29,7 +26,7 @@ namespace Graph.Bayesian.WPF.Models
             set
             {
                 input = value;
-                this.OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
 

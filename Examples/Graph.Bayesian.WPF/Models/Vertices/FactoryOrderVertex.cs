@@ -1,5 +1,5 @@
 ﻿using Graph.Bayesian.WPF.Infrastructure;
-using Graph.Bayesian.WPF.ViewModel;
+using Graph.Bayesian.WPF.Vertices;
 using ReactiveUI;
 using System;
 using System.Reactive.Linq;
@@ -14,15 +14,15 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             var add = ReactiveCommand.Create(() => new ListEdit(ListEditType.Add));
 
             add
-                .JoinRight(TypesChangeSet.SelectOfType<FactoryVertex>())
+                .JoinRight(Types.WhereTypeIs<FactoryVertex>())
                 .Subscribe(a =>
                 {
-                    OutMessages.OnNext(new OrderMessage(this.ID.ToString(), string.Empty, DateTime.Now, new Order(Guid.NewGuid(), string.Empty, a.Item2)));
+                    Out.OnNext(new OrderMessage(this.ID.ToString(), string.Empty, DateTime.Now, new Order(Guid.NewGuid(), string.Empty, a.Item2)));
                 });
 
-            Add = add;
+            ClickCommand = add;
         }
 
-        public ICommand Add { get; }
+        public override ICommand ClickCommand { get; }
     }
 }

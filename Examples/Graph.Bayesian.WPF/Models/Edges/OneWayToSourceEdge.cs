@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Graph.Bayesian.WPF.Models.Vertices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graph.Bayesian.WPF.Models.Edges {
+namespace Graph.Bayesian.WPF.Models.Edges
+{
 
-   public class OneWayToSourceEdge : Edge {
+    public class OneWayToSourceEdge : Edge {
 
       /// <summary>
       /// permits message from target to source

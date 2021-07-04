@@ -31,7 +31,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
 
             add.Merge(subtract).Merge(up).Merge(down).Subscribe(a =>
             {
-                OutMessages.OnNext(new ListEditMessage(this.ID.ToString(), string.Empty, a));
+                Out.OnNext(new ListEditMessage(this.ID.ToString(), string.Empty, a));
             });
 
             Add = add; Subtract = subtract; Up = up; Down = down;

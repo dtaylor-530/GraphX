@@ -4,11 +4,11 @@ using System.Linq;
 using DynamicData;
 using ReactiveUI;
 using System.Reactive.Subjects;
+using Graph.Bayesian.WPF.ViewModel;
 
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
     using Infrastructure;
-    using ViewModel;
 
     public record SelectionRequest(Guid Guid, string ProductId, string FactoryId);
     public record SelectionMessage(string From, string To, Selections Catalogue) : Message(From, To, DateTime.Now, Catalogue);
@@ -26,7 +26,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                 .Select(a=> a)
                 .Subscribe(catalogueViewModel.OnNext);
 
-            InMessages
+            In
                 .OfType<SelectionMessage>()
                 .Subscribe(a =>
                 {
@@ -35,17 +35,17 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                     OnPropertyChanged(nameof(LastSelectionsChange));
                 });
 
-            InMessages
+            In
                 .OfType<SelectionMessage>()
                 .SelectMany(a => a.Catalogue.Value)
-                .Merge(catalogueViewModel
+                .Merge((catalogueViewModel as IObservable<Selection>)
                 .Select(a => { return a; })
                 .WhereNotNull())
                 .Select(a => (ListChange)new ItemChange<Selection>(a))
-                .Merge(InMessages
+                .Merge(In
                 .OfType<ListEditMessage>()
                 .Select(a => (ListChange)new EditChange(a.ListEdit)))
-                .Merge(InMessages
+                .Merge(In
                 .OfType<CatalogueMessage>()
                 .SelectMany(a => a.Catalogue.Selections).Select(a => new ItemChange<Selection>(new Selection(Guid.NewGuid(), a.ProductId, a.FactoryId, false))))
                 .CombineLatest(catalogueSubject)
@@ -55,7 +55,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                     a.Second.OnNext(a.First);
                 });
 
-            InMessages
+            In
                 .OfType<ViewModelResponseMessage>()
                 .Select(a => a.Response)
                 .Select(a => new Selection(a.Guid, a.ProductId, a.FactoryId, false))
@@ -75,7 +75,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                         .DistinctUntilChanged())
                 .Subscribe(a =>
                 {
-                    OutMessages.OnNext(new SelectionRequestMessage(this.ID.ToString(), a.FactoryId, DateTime.Now, new SelectionRequest(a.Guid, a.ProductId, a.FactoryId)));
+                    Out.OnNext(new SelectionRequestMessage(this.ID.ToString(), a.FactoryId, DateTime.Now, new SelectionRequest(a.Guid, a.ProductId, a.FactoryId)));
                     LastOrderChange = DateTime.Now;
                     OnPropertyChanged(nameof(LastOrderChange));
                 });

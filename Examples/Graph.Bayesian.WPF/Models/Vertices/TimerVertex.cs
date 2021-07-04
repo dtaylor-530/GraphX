@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
-using DynamicData;
 using Graph.Bayesian.WPF.Infrastructure;
-using Graph.Bayesian.WPF.Models.Vertexs;
 using ReactiveUI;
 
-namespace Graph.Bayesian.WPF.Models
+namespace Graph.Bayesian.WPF.Models.Vertices
 {
     public class TimerVertex : Vertex
     {
@@ -22,13 +14,11 @@ namespace Graph.Bayesian.WPF.Models
 
         public TimerVertex()
         {
-            ID = random.Next(0, int.MaxValue);
-
             this.WhenAnyValue(a => a.Rate)
-                .JoinRight(TypesChangeSet)
+                .JoinRight(Types)
                 .Subscribe(rate =>
             {
-                OutMessages.OnNext(new TimerMessage(this.ID.ToString(), string.Empty, DateTime.Now, rate.Item1));
+                Out.OnNext(new TimerMessage(ID.ToString(), string.Empty, DateTime.Now, rate.Item1));
             });
 
 

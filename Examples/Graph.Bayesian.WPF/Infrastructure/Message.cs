@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reactive;
-using Graph.Bayesian.WPF.Models;
 using Graph.Bayesian.WPF.Models.Vertices;
-using Graph.Bayesian.WPF.ViewModel;
+using Graph.Bayesian.WPF.Models.Vertices.History;
 
 namespace Graph.Bayesian.WPF.Infrastructure
 {
@@ -13,7 +12,9 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
     public record ProceedMessage(string From, string To) : Message(From, To, DateTime.Now, Unit.Default);
 
-    public record HistoryMessage<T>(string From, string To, DateTime Sent, /*DateTime Received,*/ T Data) : DataMessage<T>(From, To, Sent, /*DateTime Received,*/ Data);
+    public record HistoryMessage<T>(string From, string To, DateTime Sent, /*DateTime Received,*/ T Data) : DataMessage<T>(From, To, Sent, /*DateTime Received,*/ Data) where T : notnull;
+
+    public record HistoryCurrentMessage<T>(string From, string To, DateTime Sent, /*DateTime Received,*/ T Data) : DataMessage<T>(From, To, Sent, /*DateTime Received,*/ Data) where T : notnull;
 
     public record DataMessage<T>(string From, string To,/* double Rate,*/ DateTime Sent, /*DateTime Received,*/ T Data) : Message(From, To, Sent, Data) where T : notnull;
 
@@ -29,7 +30,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
     public record IsSelectedMessage(string From, string To, bool Value) : Message(From, To, DateTime.Now, Value);
 
-    public record VertexSelectedMessage(string From, string To, Vertex Value) : Message(From, To, DateTime.Now, Value);
+    public record VerticeselectedMessage(string From, string To, Vertex Value) : Message(From, To, DateTime.Now, Value);
 
     public record NavigateVertexMessage(string From, string To, Vertex Value) : Message(From, To, DateTime.Now, Value);
 
@@ -42,4 +43,5 @@ namespace Graph.Bayesian.WPF.Infrastructure
     public record ViewModelResponseMessage(string From, string To, DateTime Sent, ViewModelResponse Response) : Message(From, To, Sent, Response);
 
 
+    public record PropertyChangeMessage(string From, string To, DateTime Sent, PropertyChange Change) : Message(From, To, Sent, Change);
 }

@@ -1,5 +1,6 @@
 ﻿using Graph.Bayesian.WPF.Controls;
 using Graph.Bayesian.WPF.Models;
+using Graph.Bayesian.WPF.Models.Vertices;
 using GraphX.Common.Enums;
 using GraphX.Controls;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;

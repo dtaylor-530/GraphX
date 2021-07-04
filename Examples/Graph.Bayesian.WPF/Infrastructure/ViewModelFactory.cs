@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using Fasterflect;
-using Graph.Bayesian.WPF.Infrastructure;
+using Graph.Bayesian.WPF.Models.Vertices;
 
-namespace Graph.Bayesian.WPF.ViewModel
+namespace Graph.Bayesian.WPF.Infrastructure
 {
 
     public interface ISelected { bool IsSelected { get; init; } }
 
     public record Record;
-    public record Order(Guid ProductGuid, string ProductId, string FactoryId): Record;
-    public record ProductToken(string ProductId, string FactoryId, bool IsSelected): Record, ISelected;
+    public record Order(Guid ProductGuid, string ProductId, string FactoryId) : Record;
+    public record ProductToken(string ProductId, string FactoryId, bool IsSelected) : Record, ISelected;
     public record Selection(Guid Guid, string ProductId, string FactoryId, bool IsSelected) : Record, ISelected;
     public record Catalogue(string FactoryId, IReadOnlyCollection<ProductToken> Selections);
     public record Selections(IReadOnlyCollection<Selection> Value);
-    public record Product(Guid Guid, string ProductId, string FactoryId, IViewModel? ViewModel, bool IsSelected) : Record, ISelected;
+    public record Product(Guid Guid, string ProductId, string FactoryId, Vertex? ViewModel) : Record;
 
     public class ViewModelFactory : Service<Order, Product>, IFactory
     {
@@ -33,9 +33,9 @@ namespace Graph.Bayesian.WPF.ViewModel
             In.Subscribe(a =>
             {
                 var graph = (Models.Graph?)methods.Single(ae => ae.Name == a.ProductId).Invoke(graphFactory.Value, Array.Empty<object>());
-                var graphViewModel = new GraphViewModel();
-                graphViewModel.OnNext(graph);
-                Out.OnNext(new Product(a.ProductGuid, a.ProductId,a.FactoryId, graphViewModel,false));
+                var graphViewModel = new GraphVertex();
+                graphViewModel.OnNext(new GraphMessage(string.Empty, graphViewModel.ID.ToString(), DateTime.Now, graph));
+                Out.OnNext(new Product(a.ProductGuid, a.ProductId, a.FactoryId, graphViewModel));
             });
         }
 
@@ -56,9 +56,9 @@ namespace Graph.Bayesian.WPF.ViewModel
             In.Subscribe(a =>
             {
                 var graph = GraphFactory.BuildEmpty();
-                var graphViewModel = new GraphViewModel();
-                graphViewModel.OnNext(graph);
-                Out.OnNext(new Product(Guid.NewGuid(), a.ProductId, a.FactoryId, graphViewModel, false));
+                var graphViewModel = new GraphVertex();
+                graphViewModel.OnNext(new GraphMessage(string.Empty, graphViewModel.ID.ToString(), DateTime.Now, graph));
+                Out.OnNext(new Product(Guid.NewGuid(), a.ProductId, a.FactoryId, graphViewModel));
             });
         }
 

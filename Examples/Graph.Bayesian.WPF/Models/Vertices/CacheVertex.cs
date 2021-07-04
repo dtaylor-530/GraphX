@@ -2,33 +2,28 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using DynamicData;
 using Graph.Bayesian.WPF.Infrastructure;
-using Graph.Bayesian.WPF.ViewModel;
 using ReactiveUI;
 
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
-
-
-    public record ViewModelResponse(Guid Guid, string ProductId, string FactoryId, IViewModel ViewModel);
+    public record ViewModelResponse(Guid Guid, string ProductId, string FactoryId, Vertex ViewModel);
 
     public class CacheVertex : Vertex
     {
-        readonly ListService<Product> cacheService = new(a => a.Guid.ToString());
-        readonly ListViewModel<Product> listViewModel;
+        //readonly ListService<Product> cacheService = new(a => a.Guid.ToString());
+        //readonly ListViewModel<Product> listViewModel;
 
         public CacheVertex()
         {
-            listViewModel = new();
+            //listViewModel = new();
 
-            cacheService
-               .Subscribe(listViewModel.OnNext);
+            //cacheService
+            //   .Subscribe(listViewModel.OnNext);
 
-            InMessages
+            In
                 .OfType<SelectionRequestMessage>()
-                .MergeDifferent(InMessages.OfType<ProductMessage>())
+                .MergeDifferent(In.OfType<ProductMessage>())
                 //.JoinRight(TypesChangeSet.SelectOfType<ViewModelOutputVertex>())
                 .Select(tuple =>
 
@@ -46,16 +41,16 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                      }
                 )
                 .WhereNotNull()
-                .Subscribe(a => OutMessages.OnNext(a));
+                .Subscribe(a => Out.OnNext(a));
 
 
-            OutMessages.OfType<OrderMessage>()
+            Out.OfType<OrderMessage>()
                 .Subscribe(orderMessage =>
                 {
                     Orders.Add(orderMessage.Order.ProductId);
                 });
 
-            InMessages.OfType<ProductMessage>()
+            In.OfType<ProductMessage>()
                 .Subscribe(productMessage =>
                 {
                     Products.Add(productMessage.Value);

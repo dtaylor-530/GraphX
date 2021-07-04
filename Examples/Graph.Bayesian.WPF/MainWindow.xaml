@@ -4,25 +4,11 @@
         xmlns:reactiveui="http://reactiveui.net"
         Title="Simple graph example. Read code comments for more info." 
         Height="600" Width="825">
+
+    <ContentControl
+            x:Name="MainContentControl"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+    </ContentControl>
     
-    <FrameworkElement.Resources>
-
-    </FrameworkElement.Resources>
-
-    <UniformGrid Rows="1">
-        <reactiveui:ViewModelViewHost
-        x:Name="GraphViewModelViewHost"
-        VerticalContentAlignment="Stretch"
-        HorizontalContentAlignment="Stretch">
-        </reactiveui:ViewModelViewHost>
-
-
-        <reactiveui:ViewModelViewHost
-        x:Name="MainViewModelViewHost"
-        VerticalContentAlignment="Stretch"
-        HorizontalContentAlignment="Stretch">            
-        </reactiveui:ViewModelViewHost>
-        
-    </UniformGrid>
-
 </Window>

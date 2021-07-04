@@ -17,13 +17,13 @@
     <PackageReference Include="fasterflect" Version="3.0.0" />
     <PackageReference Include="IX.Observable" Version="0.7.3" />
     <PackageReference Include="ObservableConcurrentQueue" Version="1.1.0" />
-    <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
     <PackageReference Include="ReactiveUI.WPF" Version="14.1.1" />
     <PackageReference Include="Splat.Ninject" Version="11.1.1" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Wpf PropertyGrid\PropertyTools\Source\PropertyTools.Wpf\PropertyTools.Wpf.csproj" />
     <ProjectReference Include="..\..\GraphX.Controls\GraphX.WPF.Controls.csproj" />
     <ProjectReference Include="..\..\GraphX.Standard.Logic\GraphX.Standard.Logic.csproj" />
     <ProjectReference Include="..\Flip.WPF\Flip.WPF.csproj" />
@@ -50,19 +50,12 @@
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Update="View\HistoryView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="View\HistoryView.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
 

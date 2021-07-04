@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Graph.Bayesian.WPF.Models.Vertices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

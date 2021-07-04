@@ -4,11 +4,11 @@ using System.Linq;
 using DynamicData;
 using ReactiveUI;
 using System.Reactive.Subjects;
+using Graph.Bayesian.WPF.ViewModel;
 
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
     using Infrastructure;
-    using ViewModel;
 
     public record CatalogueMessage(string From, string To, Catalogue Catalogue) : Message(From, To, DateTime.Now, Catalogue);
 
@@ -27,7 +27,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
           .SelectMany(a => a)
           .Subscribe(catalogueViewModel.OnNext);
 
-            InMessages
+            In
                 .OfType<CatalogueMessage>()
                 .Subscribe(a =>
                 {
@@ -36,16 +36,23 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                     OnPropertyChanged(nameof(LastCatalogueChange));
                 });
 
-            InMessages
-                .OfType<CatalogueMessage>()
-                .SelectMany(a => a.Catalogue.Selections)
-                .Merge(catalogueViewModel
+            var a = (catalogueViewModel as IObservable<ProductToken>)
                 .Select(a => { return a; })
-                .WhereNotNull())
-                .Select(a => (ListChange)new ItemChange<ProductToken>(a))
-                .Merge(InMessages
+                .WhereNotNull();
+          
+            var b = In
                .OfType<ListEditMessage>()
-               .Select(a => (ListChange)new EditChange(a.ListEdit)))
+               .Select(a => (ListChange)new EditChange(a.ListEdit));
+
+            var c = In
+                .OfType<CatalogueMessage>()
+                .SelectMany(a => a.Catalogue.Selections);
+       
+
+            _ = a
+                .Merge(c)
+                .Select(a => (ListChange)new ItemChange<ProductToken>(a))
+                .Merge(b)
                 .CombineLatest(catalogueSubject)
                 .Subscribe(a => a.Second.OnNext(a.First));
 
@@ -59,7 +66,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                         .DistinctUntilChanged()
                         .Subscribe(a =>
                         {
-                            OutMessages.OnNext(new OrderMessage(this.ID.ToString(), a.FactoryId, DateTime.Now, new Order(Guid.NewGuid(), a.ProductId, a.FactoryId)));
+                            Out.OnNext(new OrderMessage(this.ID.ToString(), a.FactoryId, DateTime.Now, new Order(Guid.NewGuid(), a.ProductId, a.FactoryId)));
                             LastOrderChange = DateTime.Now;
                             OnPropertyChanged(nameof(LastOrderChange));
                         }));

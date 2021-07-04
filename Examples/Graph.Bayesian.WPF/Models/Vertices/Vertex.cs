@@ -1,184 +1,192 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
-using System.Windows.Documents;
 using System.Windows.Input;
 using DynamicData;
-using DynamicData.Binding;
 using Fasterflect;
 using Graph.Bayesian.WPF.Infrastructure;
-using Graph.Bayesian.WPF.Models.Vertexs;
+using Graph.Bayesian.WPF.Models.Vertices.History;
+using Graph.Bayesian.WPF.ViewModel;
 using GraphX.Common.Models;
+using PropertyTools.DataAnnotations;
 using ReactiveUI;
 
-namespace Graph.Bayesian.WPF.Models
+namespace Graph.Bayesian.WPF.Models.Vertices
 {
-
-    public record TypeRecord(Type Key, IReadOnlyCollection<string> Values);
-
-
     /* DataVertex is the data class for the vertices. It contains all custom vertex data specified by the user.
      * This class also must be derived from VertexBase that provides properties and methods mandatory for
      * correct GraphX operations.
      * Some of the useful VertexBase members are:
      *  - ID property that stores unique positive identfication number. Property must be filled by user.
      */
-    public class Vertex : VertexBase, IObservable<Message>, IObserver<Message>, INotifyPropertyChanged
+    public class Vertex : VertexBase, ISubject<Message>, System.ComponentModel.INotifyPropertyChanged
     {
-        private readonly ReplaySubject<TypeRecord> subject = new();
-        private string type;
-        private readonly ReadOnlyObservableCollection<TypeRecord> collection;
+        private readonly Lazy<string> type;
+        private readonly TypesService typesService;
+        private readonly Lazy<string[]> ignoreProperties;
+        protected Subject<string> propertyChanges = new();
 
-        protected static Random random { get; } = new();
-        protected IObservable<IChangeSet<TypeRecord, Type>> TypesChangeSet { get; }
-        protected Dictionary<Type, List<string>> TypesDictionary { get; } = new();
+        protected IObservable<IChangeSet<TypeRecord, Type>> Types => typesService.AsObservable();
 
         public Vertex()
         {
-            ID = random.Next(0, int.MaxValue);
-
-            TypesChangeSet = ObservableChangeSet.Create<TypeRecord, Type>(sourceCache =>
+            ignoreProperties = new(() =>
             {
-                return subject.Subscribe(a =>
-                {
-                    sourceCache.AddOrUpdate(a);
-                });
-            }, a => a.Key);
+                var arr = this.GetType()
+                                .FilterPropertiesByAttribute<MonitorPropertyChangeAttribute>(a => a?.RegisterChanges == false)
+                                .Select(a => a.Name)
+                                .ToArray();
 
-            TypesChangeSet.Bind(out collection).Subscribe();
+                return arr;
+            });
+            typesService = new();
+            TypesViewModel = new();
+            ID = IDFactory.Get;
+            type = new(() => GetType().Name);
+            typesService.RemoveKey().Subscribe(TypesViewModel.OnNext);
 
             ClickCommand = ReactiveCommand.Create<Unit, Unit>(a =>
             {
-                LastClicked = DateTime.Now;
-                OnPropertyChanged(nameof(LastClicked));
-                this.InMessages.OnNext(new ClickMessage(this.ID.ToString(), this.ID.ToString()));
+                //LastClicked = DateTime.Now;
+                //OnPropertyChanged(nameof(LastClicked));
+                In.OnNext(new ClickMessage(ID.ToString(), ID.ToString()));
                 return a;
             });
 
-            InMessages
+
+            var a = In
+               .OfType<ClickMessage>()
+               .JoinRight(Types.WhereTypeIs(typeof(ClickServiceVertex)))
+               .Select(a => (Message)new ClickMessage(ID.ToString(), a.Item2));
+
+
+            var b = In
+                .OfType<IsSelectedMessage>()
+                .Where(a => a.Value)
+                .JoinRight(Types.WhereTypeIs(typeof(SelectServiceVertex)))
+                .Select(a => (Message)new VerticeselectedMessage(ID.ToString(), a.Item2, this));
+
+            a.Merge(b)
                 .Subscribe(msg =>
                 {
-                    var (from, to, a, b) = msg;
-                    LastMessage = msg;
-                    LastMessageUpdate = DateTime.Now;
-                    OnPropertyChanged(nameof(LastMessage));
-                    OnPropertyChanged(nameof(LastMessageUpdate));
+                    Out.OnNext(msg);
                 });
 
-            InMessages
-               .OfType<ClickMessage>()
-               .JoinRight(TypesChangeSet.SelectOfType(typeof(ClickServiceVertex)))
-               .Subscribe(msg =>
-               {
-                   OutMessages.OnNext(new ClickMessage(this.ID.ToString(), msg.Item2));
-               });
-
-            InMessages
-               .OfType<IsSelectedMessage>()
-               .Where(a => a.Value)
-               .JoinRight(TypesChangeSet.SelectOfType(typeof(SelectServiceVertex)))
-               .Subscribe(msg =>
-               {
-                   OutMessages.OnNext(new VertexSelectedMessage(this.ID.ToString(), msg.Item2, this));
-               });
-
-            InMessages
-               .OfType<IsSelectedMessage>()
-               .Subscribe(msg =>
-               {
-                   var (_, _, isSelected) = msg;
-                   IsSelected = isSelected;
-                   OnPropertyChanged(nameof(IsSelected));
-               });
-
-            InMessages.OfType<IdMessage>()
-               .Subscribe(message =>
-               {
-
-                   if (Type == nameof(DataVertex))
-                   {
-                   }
-
-                  (TypesDictionary[message.Type] = TypesDictionary.GetValueOrDefault(message.Type, new List<string>())).Add(message.From);
-                   subject.OnNext(new TypeRecord(message.Type, TypesDictionary[message.Type]));
-
-               });
+            var values = ignoreProperties.Value;
+            In
+               .Subscribe(msg => NewMessage(msg));
 
             _ = this
-                .WhenAnyPropertyHasChangedExcept(new[] { nameof(UpdatedCount), nameof(LastUpdated), nameof(LastMessage), nameof(LastMessageUpdate) })
-                .Scan((0, (string?)""), (a, b) => (++a.Item1, b.name))
-                .Skip(1)
+                //.WhenAnyPropertyHasChangedExcept(new[] { nameof(UpdatedCount), nameof(LastUpdated), nameof(LastMessage), nameof(LastMessageUpdate) })
+                .WhenAnyPropertyHasChangedExcept(ignoreProperties.Value)
+                .Select(a => a.name)
+                .Merge(propertyChanges)
+                .Scan((0, (string?)""), (a, b) => (++a.Item1, b))
+                //.Skip(1)
                 .ObserveOnDispatcher()
                 .Subscribe(c =>
                 {
-                    var (a, name) = c;
-                    UpdatedCount = a;
-                    OnPropertyChanged(nameof(UpdatedCount));
-                    // Double change (i.e true-false) necessary for DataTrigger to work
-                    LastUpdated = true;
-                    OnPropertyChanged(nameof(LastUpdated));
-                    LastUpdated = false;
-                    OnPropertyChanged(nameof(LastUpdated));
-                    try
-                    {
-                        var pc = new PropertyChange(DateTime.Now, this.ID.ToString(), name, DateTime.Now, this.GetPropertyValue(name));
-                        var msg = new PropertyChangeMessage(this.ID.ToString(), default, DateTime.Now, pc);
-                        OutMessages.OnNext(msg);
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    PropertyHasChanged(c);
                 });
-
-
-            //this.WhenAnyPropertyHasChanged()
-            //    .Where(a => a.name != null)
-            //    .Select(a => new PropertyChangeMessage(this.ID.ToString(), default, DateTime.Now, new PropertyChange(DateTime.Now, this.ID.ToString(), a.name!, DateTime.Now, a.Item1.GetPropertyValue(a.name))))
-            //    .Subscribe(a =>
-            //    {
-            //        // OutMessages.OnNext(a);
-            //    });
         }
 
-        public string Type => type ??= this.GetType().Name;
+        private void PropertyHasChanged((int, string) c)
+        {
+            var (a, name) = c;
+            UpdatedCount = a;
+            OnPropertyChanged(nameof(UpdatedCount));
+            // Double change (i.e true-false) necessary for DataTrigger to work
+            LastUpdated = true;
+            OnPropertyChanged(nameof(LastUpdated));
+            LastUpdated = false;
+            OnPropertyChanged(nameof(LastUpdated));
+            try
+            {
+                var pc = new PropertyChange(Guid.NewGuid(), ID.ToString(), name, DateTime.Now, this.GetPropertyValue(name));
+                var msg = new PropertyChangeMessage(ID.ToString(), default, DateTime.Now, pc);
+                Out.OnNext(msg);
+            }
+            catch (Exception ex)
+            {
 
-        public ReplayModel<Message> InMessages { get; } = new();
+            }
+        }
 
-        public ReplayModel<Message> OutMessages { get; } = new();
+        private void NewMessage(Message msg)
+        {
+            Update(msg);
 
-        public ReadOnlyObservableCollection<TypeRecord> Collection => collection;
+            switch (msg)
+            {
+                case IdMessage { From: { } from, Type: { } type }:
+                    {
+                        typesService.OnNext((type, from));
+                        Update(msg);
+                        break;
+                    }
+                case IsSelectedMessage { Value: { } value }:
+                    {
+                        IsSelected = value;
+                        OnPropertyChanged(nameof(IsSelected));
+                        Update(msg);
+                        break;
+                    }
+                default:
+                    Update(msg);
+                    break;
+            }
+
+            void Update(Message msg)
+            {
+                LastMessage = msg;
+                LastMessageUpdate = DateTime.Now;
+                OnPropertyChanged(nameof(LastMessage));
+                OnPropertyChanged(nameof(LastMessageUpdate));
+            }
+        }
+
+        public string[] IgnoreProperties => ignoreProperties.Value;
+
+        public ReplayModel<Message> In { get; } = new();
+
+        public ReplayModel<Message> Out { get; } = new();
+
+        public ListViewModel<TypeRecord> TypesViewModel { get; }
+
+        public ITypesDictionary TypesDictionary => typesService;
+
+        [Browsable(true)]
+        [HeaderPlacement(HeaderPlacement.Collapsed)]
+        public string TypeName => type.Value;
 
         public bool IsSelected { get; private set; }
 
-        //public string LastId { get; protected set; }
+        public bool IsEnabled { get; private set; }
 
+        //public string LastId { get; protected set; }
+        [MonitorPropertyChange(false)]
         public int UpdatedCount { get; private set; }
 
+        [Browsable(true)]
+        [HeaderPlacement(HeaderPlacement.Collapsed)]
+        [MonitorPropertyChange(false)]
         public bool LastUpdated { get; private set; }
 
-        public DateTime LastClicked { get; private set; }
+        [Browsable(true)]
+        [HeaderPlacement(HeaderPlacement.Collapsed)]
+        [MonitorPropertyChange(false)]
+        public Message? LastMessage { get; private set; }
 
-        public Message LastMessage { get; private set; }
-
+        [Browsable(true)]
+        [HeaderPlacement(HeaderPlacement.Collapsed)]
+        [MonitorPropertyChange(false)]
         public DateTime LastMessageUpdate { get; private set; }
 
-        public IDisposable Subscribe(IObserver<Message> observer)
-        {
-            return OutMessages.Subscribe(a =>
-            {
-                observer.OnNext(a);
-            });
-        }
 
-        public override string ToString() => type;
+        public override string ToString() => type.Value;
 
         public void OnCompleted()
         {
@@ -192,16 +200,27 @@ namespace Graph.Bayesian.WPF.Models
 
         public void OnNext(Message message)
         {
-            InMessages.OnNext(message);
+            In.OnNext(message);
+        }
+
+        public IDisposable Subscribe(IObserver<Message> observer)
+        {
+            return Out.Subscribe(a =>
+            {
+                observer.OnNext(a);
+            });
         }
 
         public virtual ICommand ClickCommand { get; }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
     }
+
+
+
 }

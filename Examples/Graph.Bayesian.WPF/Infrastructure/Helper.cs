@@ -15,6 +15,18 @@ namespace Graph.Bayesian.WPF.Infrastructure
     public static class Helper
     {
 
+        public static IEnumerable<MemberInfo> FilterPropertiesByAttribute<T>(this Type type, Predicate<T?> predicate) where T : Attribute =>
+      FilterByAttribute(type.GetProperties(), predicate);
+
+        public static IEnumerable<Type> FilterByAttribute<T>(this Type[] types, Predicate<T?> predicate) where T : Attribute =>
+            FilterByAttribute(types, predicate);
+
+        public static IEnumerable<TMember> FilterByAttribute<TAttribute, TMember>(this IEnumerable<TMember> members, Predicate<TAttribute?> predicate) where TAttribute : Attribute where TMember : MemberInfo =>
+            from member in members
+            let attibute = member.GetCustomAttributes(typeof(TAttribute), false).FirstOrDefault()
+            where predicate((TAttribute?)attibute)
+            select member;
+
 
         /// <summary>
         /// Notifies when any property on the object has changed.
@@ -105,29 +117,6 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
         }
 
-        public static IObservable<string> SelectAll(this IObservable<IChangeSet<TypeRecord, Type>> observable)
-        {
-
-            return observable.ToCollection()
-               .SelectMany(a => a)
-               .SelectMany(c => c.Values)
-               .Distinct();
-        }
-
-        public static IObservable<string> SelectOfType(this IObservable<IChangeSet<TypeRecord, Type>> observable, Type key)
-        {
-
-            return observable.ToCollection()
-               .Where(ac => ac.Any(a => a.Key == key))
-               .SelectMany(a => a.Where(sa => sa.Key == key))
-               .SelectMany(c => c.Values)
-               .Distinct();
-        }
-
-        public static IObservable<string> SelectOfType<T>(this IObservable<IChangeSet<TypeRecord, Type>> observable)
-        {
-            return SelectOfType(observable, typeof(T));
-        }
 
         /// <summary>
         /// Ensures late notifications from <see cref="observableLeft"/>

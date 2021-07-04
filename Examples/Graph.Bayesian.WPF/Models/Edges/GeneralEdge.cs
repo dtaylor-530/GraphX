@@ -4,11 +4,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using Graph.Bayesian.WPF.Infrastructure;
+using Graph.Bayesian.WPF.Models.Vertices;
 using GraphX.Common.Models;
 
-namespace Graph.Bayesian.WPF.Models {
+namespace Graph.Bayesian.WPF.Models
+{
 
-   public class UnFilteredEdge : Edge {
+    public class UnFilteredEdge : Edge {
       
       /// <summary>
       /// Default constructor. We need to set at least Source and Target properties of the edge.

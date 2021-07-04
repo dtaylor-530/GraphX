@@ -7,20 +7,21 @@ using System.Threading.Tasks;
 using DynamicData;
 using Graph.Bayesian.WPF.Infrastructure;
 
-namespace Graph.Bayesian.WPF.Models.Vertexs {
+namespace Graph.Bayesian.WPF.Models.Vertices
+{
+    public class ClickServiceVertex : Vertex
+    {
 
-   public class ClickServiceVertex : Vertex {
-
-      public ClickServiceVertex()
-      {
-         InMessages
-            .OfType<ClickMessage>()
-            .JoinRight(TypesChangeSet.SelectAll())
-            .Subscribe(a =>
-            {
-               var ((@from, _), item2) = a;
-               OutMessages.OnNext(new IsSelectedMessage(this.ID.ToString(), item2, @from == item2));
-            });
-      }
-   }
+        public ClickServiceVertex()
+        {
+            In
+               .OfType<ClickMessage>()
+               .JoinRight(Types.AllTypes())
+               .Subscribe(a =>
+               {
+                   var ((@from, _), item2) = a;
+                   Out.OnNext(new IsSelectedMessage(ID.ToString(), item2, @from == item2));
+               });
+        }
+    }
 }

@@ -1,0 +1,170 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vertices="clr-namespace:Graph.Bayesian.WPF.Models.Vertices" 
+                    xmlns:view="clr-namespace:Graph.Bayesian.WPF.View" 
+                    xmlns:controls="clr-namespace:Framework.UI.Controls;assembly=Flip.WPF"
+                    xmlns:pt="http://propertytools.org/wpf">
+
+    <DataTemplate DataType="{x:Type vertices:ListEditorVertex}">
+        <UniformGrid>
+            <Button Command="{Binding Add}">+</Button>
+            <Button Command="{Binding Subtract}">-</Button>
+            <Button Command="{Binding Up}">up</Button>
+            <Button Command="{Binding Down}">down</Button>
+        </UniformGrid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:GraphVertex}">
+        <view:GraphView ViewModel="{Binding Graph}"></view:GraphView>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:FactoryOrderVertex}">
+        <Button Command="{Binding ClickCommand}">+</Button>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:SaveVertex}">
+        <Button Command="{Binding ClickCommand}">Save</Button>
+    </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type vertices:SelectionVertex}">
+        <StackPanel>
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}" />
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+                <TextBlock Text="{Binding LastSelectionsChange}" />
+                <TextBlock Text="{Binding LastOrderChange}" />
+            </UniformGrid>
+            <ContentControl Content="{Binding ListViewModel}" ></ContentControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:CatalogueVertex}">
+        <StackPanel>
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}" />
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+                <TextBlock Text="{Binding LastCatalogueChange}" />
+                <TextBlock Text="{Binding LastOrderChange}" />
+            </UniformGrid>
+            <ContentControl Content="{Binding Catalogue}"></ContentControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:CacheVertex}">
+        <StackPanel>
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}" />
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+            </UniformGrid>
+            <UniformGrid>
+                <TextBlock Text="Products"></TextBlock>
+                <controls:FlipControl Integer="{Binding Products.Count}"  Height="20"/>
+
+                <TextBlock Text="Orders"></TextBlock>
+                <controls:FlipControl Integer="{Binding Orders.Count}"   Height="20"/>
+            </UniformGrid>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:ViewModelOutputVertex}">
+        <StackPanel>
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}"/>
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+            </UniformGrid>
+            <Border BorderBrush="LightGray" BorderThickness="1" Height="60">
+                <ItemsControl ItemsSource="{Binding Responses}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ProductId }"></TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" Height="120"></UniformGrid>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Border>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:TimerVertex}">
+        <Button Command="{Binding ClickCommand}">
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}"/>
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+                <!--<TextBlock Text="{Binding TimeSpan, StringFormat=\{0:mm\\:ss\\:ff\}}" />
+                        <TextBlock Text="{Binding DateTime}" />-->
+                <pt:SpinControl  Value="{Binding Rate}" SmallChange="100" LargeChange="1000" Minimum="100" Maximum="10000">
+                    <TextBlock Text="{Binding Rate, Mode=TwoWay}"  />
+                </pt:SpinControl>
+            </UniformGrid>
+        </Button>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:Vertex}">
+        <Button Command="{Binding ClickCommand}" >
+            <pt:PropertyGrid SelectedObject="{Binding }"  />
+        </Button>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:DataVertex}">
+        <Button Command="{Binding ClickCommand}" >
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}"/>
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+                <controls:FlipControl Integer="{Binding Data}"  />
+            </UniformGrid>
+        </Button>
+    </DataTemplate>
+
+
+
+    <DataTemplate DataType="{x:Type vertices:DataInputVertex}">
+        <Button Command="{Binding ClickCommand}" >
+            <UniformGrid Columns="1">
+                <TextBlock Text="{Binding ID}"/>
+                <TextBlock Text="{Binding TypeName}" />
+                <TextBlock Text="{Binding LastMessage.From}" />
+                <pt:SpinControl  Value="{Binding Input}" SmallChange="1" LargeChange="10">
+                    <TextBlock Text="{Binding Input}"  />
+                </pt:SpinControl>
+            </UniformGrid>
+        </Button>
+    </DataTemplate>
+    
+
+    <DataTemplate DataType="{x:Type vertices:NavigationVertex}">
+        <Button Command="{Binding ClickCommand}">
+            <StackPanel>
+                <TextBlock Text="{Binding ID}"></TextBlock>
+                <TextBlock Text="{Binding TypeName}" Width="250" Height="25" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                <Border BorderThickness="1" BorderBrush="Blue">
+                    <ContentControl Content="{Binding Vertex}"></ContentControl>
+                </Border>
+            </StackPanel>
+        </Button>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:ControllerVertex}">
+        <StackPanel>
+            <TextBlock Text="{Binding ID, Mode=OneTime}"></TextBlock>
+            <TextBlock Text="{Binding TypeName, Mode=OneTime}" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+            <TextBlock Text="{Binding IsNothingInQueue, Mode=OneWay}" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+            <UniformGrid Columns="1" MinHeight="30">
+                <DataGrid ItemsSource="{Binding QueuedMessages, Mode=OneTime}"></DataGrid>
+            </UniformGrid>
+        </StackPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

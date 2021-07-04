@@ -1,6 +1,6 @@
-﻿using Graph.Bayesian.WPF.ViewModel;
+﻿using System;
+using Graph.Bayesian.WPF.Vertices;
 using ReactiveUI;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -9,7 +9,7 @@ using System.Reactive.Subjects;
 
 namespace Graph.Bayesian.WPF.Infrastructure
 {
-    public class ReactiveSubject<TIn, TOut> : ReactiveObject, ISubject<TIn, TOut>, IViewModel
+    public class ReactiveService<TIn, TOut> : ReactiveObject, ISubject<TIn, TOut>, IViewModel
     {
         readonly ReplaySubject<TIn> replaySubjectIn = new(1);
         readonly ReplaySubject<TOut> replaySubjectOut = new(1);
@@ -36,6 +36,11 @@ namespace Graph.Bayesian.WPF.Infrastructure
         public IDisposable Subscribe(IObserver<TOut> observer)
         {
             return replaySubjectOut.Subscribe(observer);
+        }
+
+        public string Save()
+        {
+            throw new NotImplementedException();
         }
     }
 

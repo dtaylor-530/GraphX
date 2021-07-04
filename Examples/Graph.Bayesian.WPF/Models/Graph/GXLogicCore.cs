@@ -1,3 +1,4 @@
+using Graph.Bayesian.WPF.Models.Vertices;
 using GraphX.Logic.Models;
 using QuikGraph;
 

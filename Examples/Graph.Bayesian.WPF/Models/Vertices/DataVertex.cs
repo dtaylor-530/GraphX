@@ -6,21 +6,15 @@ using System.Windows.Input;
 using Graph.Bayesian.WPF.Infrastructure;
 using ReactiveUI;
 
-namespace Graph.Bayesian.WPF.Models
+namespace Graph.Bayesian.WPF.Models.Vertices
 {
-
     public class DataVertex : Vertex
     {
         public record IntData(long Id, int Value);
 
         public DataVertex()
         {
-            //InMessages.OfType<TimerMessage>().Select(a => a.Rate).Subscribe(a =>
-            //{
-
-            //});
-
-            InMessages
+            In
                 .OfType<TimerMessage>()
                 .DistinctUntilChanged(a => a.Rate)
                 .Subscribe(a =>
@@ -28,13 +22,13 @@ namespace Graph.Bayesian.WPF.Models
 
                 });
 
-            InMessages
+            In
                .OfType<TimerMessage>()
                .DistinctUntilChanged(a => a.Rate)
-               .JoinRight(TypesChangeSet.SelectOfType<DataVertex>())
+               .JoinRight(Types.WhereTypeIs<DataVertex>())
                 .Subscribe(a =>
                 {
-                    OutMessages.OnNext(a.Item1 with { From = this.ID.ToString(), To = a.Item2, Sent = DateTime.Now });
+                    Out.OnNext(a.Item1 with { From = ID.ToString(), To = a.Item2, Sent = DateTime.Now });
                 });
 
             //ClickCommand = ReactiveCommand.Create<Unit, Unit>(a =>
@@ -44,7 +38,7 @@ namespace Graph.Bayesian.WPF.Models
             //    return a;
             //});
 
-            InMessages
+            In
                 .OfType<DataMessage<IntData>>()
                 .Subscribe(a =>
                 {
@@ -55,25 +49,25 @@ namespace Graph.Bayesian.WPF.Models
                     OnPropertyChanged(nameof(LastDataChange));
                 });
 
-            InMessages
+            In
                .OfType<DataMessage<IntData>>()
                //.Where(a => a.Data.LastId != this.ID.ToString())
-               .JoinRight(TypesChangeSet.SelectOfType(typeof(DataVertex)))
+               .JoinRight(Types.WhereTypeIs(typeof(DataVertex)))
                //.CombineLatest(InMessages.OfType<TimerMessage>().Select(a => a.Rate).DistinctUntilChanged().StartWith(0))
                .Select(a =>
                {
                    var ((from, to, dateTime, (Id, value)), id) = a;
                    if (id != from)
-                       return a.Item1 with { From = this.ID.ToString(), To = id, Sent = DateTime.Now };
+                       return a.Item1 with { From = ID.ToString(), To = id, Sent = DateTime.Now };
                    /*new DataMessage<IntData>(this.ID.ToString(), id, DateTime.Now, new(Id, Data));*/
                    return null;
                })
                .WhereNotNull()
                .DistinctUntilChanged()
-               .Subscribe(OutMessages.OnNext);
+               .Subscribe(Out.OnNext);
 
 
-            InMessages.OfType<IdMessage>()
+            In.OfType<IdMessage>()
                .Subscribe(message =>
                {
 
@@ -84,8 +78,5 @@ namespace Graph.Bayesian.WPF.Models
 
         public DateTime LastDataChange { get; private set; }
 
-        //public Queue<(int value, string lastId)> Queue { get; } = new();
-
-        //public override ICommand ClickCommand { get; }
     }
 }

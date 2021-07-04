@@ -1,0 +1,61 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:models="clr-namespace:Graph.Bayesian.WPF.Models"
+                    xmlns:vertices="clr-namespace:Graph.Bayesian.WPF.Models.Vertices"                  
+                    xmlns:infra="clr-namespace:Graph.Bayesian.WPF.Infrastructure">
+
+
+    <DataTemplate DataType="{x:Type vertices:NavigationVertex}">
+        <DataTemplate.Resources>
+            <DataTemplate DataType="{x:Type infra:ITypesDictionary}">
+                <ItemsControl ItemsSource="{Binding Types}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Ellipse Fill="Red" Width="30" Height="30"></Ellipse>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type infra:TypeRecord}">
+                <StackPanel >
+                    <TextBlock Text="{Binding Key.Name}"></TextBlock>
+                    <ItemsControl ItemsSource="{Binding Values }"></ItemsControl>
+                </StackPanel>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vertices:Vertex}">
+                <StackPanel>
+                    <TextBlock Text="{Binding TypeName, Mode=OneWay}"></TextBlock>
+                    <TextBlock Text="{Binding LastMessage.From, Mode=OneWay}"></TextBlock>
+                    <CheckBox  IsChecked="{Binding IsSelected, Mode=OneWay}"></CheckBox>
+
+                    <Border BorderThickness="0.4" BorderBrush="DarkRed">
+                        <StackPanel>
+                            <ContentControl Content="{Binding TypesDictionary}"></ContentControl>
+                            <ContentControl Content="{Binding TypesViewModel}"></ContentControl>
+                        </StackPanel>
+                    </Border>
+                    <UniformGrid Rows="1">
+                        <StackPanel>
+                            <TextBlock Text="In"></TextBlock>
+                            <DataGrid ItemsSource="{Binding In.Collection, Mode=OneTime}"></DataGrid>
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock Text="Out"></TextBlock>
+                            <DataGrid ItemsSource="{Binding Out.Collection, Mode=OneTime}"></DataGrid>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </DataTemplate>   
+        </DataTemplate.Resources>
+
+
+        <Border BorderThickness="1" BorderBrush="Blue">
+            <ContentControl Content="{Binding Vertex}"></ContentControl>
+        </Border>
+        
+    </DataTemplate>
+
+</ResourceDictionary>

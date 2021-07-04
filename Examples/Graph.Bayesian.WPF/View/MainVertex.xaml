@@ -1,0 +1,109 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vertices="clr-namespace:Graph.Bayesian.WPF.Models.Vertices"
+                    xmlns:viewmodel="clr-namespace:Graph.Bayesian.WPF.ViewModel">
+
+
+    <DataTemplate DataType="{x:Type vertices:MainVertex}">
+        <UniformGrid Rows="1">
+            <!--<reactiveui:ViewModelViewHost
+        x:Name="GraphViewModelViewHost"
+        VerticalContentAlignment="Stretch"
+        HorizontalContentAlignment="Stretch">
+        </reactiveui:ViewModelViewHost>-->
+
+
+            <!--<reactiveui:ViewModelViewHost
+        x:Name="MainViewModelViewHost"
+        VerticalContentAlignment="Stretch"
+        HorizontalContentAlignment="Stretch">            
+        </reactiveui:ViewModelViewHost>-->
+
+
+            <ContentControl
+            Content="{Binding GraphVertex}"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+            </ContentControl>
+
+
+            <ContentControl
+           Content="{Binding MasterDetailVertex}"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+            </ContentControl>
+        </UniformGrid>
+
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vertices:MasterDetailVertex}">
+        <DataTemplate.Resources>
+            
+            <DataTemplate DataType="{x:Type viewmodel:ListViewModel}">
+                <Border BorderBrush="NavajoWhite" BorderThickness="1" >
+                    <ListBox ItemsSource="{Binding Collection, Mode=OneTime}" SelectedItem="{Binding Selection}">
+                    </ListBox>
+                </Border>
+            </DataTemplate>
+
+
+            <DataTemplate DataType="{x:Type vertices:ViewModelOutputVertex}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition  Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Border BorderBrush="OrangeRed" BorderThickness="1" >
+                        <StackPanel>
+                            <TextBlock FontWeight="DemiBold" FontSize="13" Margin="2" Text="{Binding ID}"/>
+                            <TextBlock FontWeight="DemiBold" FontSize="13" Margin="2" Text="{Binding LastResponseChange}"/>
+                        </StackPanel>
+                    </Border>
+                    <ContentControl Content="{Binding LastResponse, Mode=OneWay}" Grid.Row="1"></ContentControl>
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vertices:ViewModelResponse}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition  Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Border BorderBrush="LightSeaGreen" BorderThickness="1" >
+                        <StackPanel Orientation="Horizontal">
+
+                            <TextBlock FontWeight="DemiBold" FontSize="13" Margin="4" Text="{Binding ProductId}"/>
+                            <TextBlock FontWeight="DemiBold" FontSize="13" Margin="4" Foreground="Silver" Text="{Binding Guid}"/>
+                            <TextBlock FontWeight="DemiBold" FontSize="13" Margin="4" Foreground="Silver" Text="{Binding FactoryId}"/>
+                        </StackPanel>
+                    </Border>
+                    <ContentControl
+                        Grid.Row="1"
+                        VerticalContentAlignment="Stretch"   
+                        HorizontalContentAlignment="Stretch"
+                        Content="{Binding ViewModel, Mode=OneWay}">
+                    </ContentControl>
+                </Grid>
+            </DataTemplate>
+
+
+            <DataTemplate DataType="{x:Type vertices:SelectionVertex}">
+                <Border BorderBrush="OrangeRed" BorderThickness="1" >
+                    <StackPanel>
+                        <TextBlock FontWeight="DemiBold" FontSize="13" Margin="2" Text="{Binding ID}"/>
+
+
+                        <ContentControl Content="{Binding ListViewModel}"  ></ContentControl>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+
+        </DataTemplate.Resources>
+
+        <DockPanel >
+            <ContentControl x:Name="LeftContentControl" Content="{Binding SelectionVertex}" DockPanel.Dock="Left" MaxWidth="150"/>
+            <ContentControl x:Name="MainContentControl" Content="{Binding ViewModelOutputVertex}"></ContentControl>
+        </DockPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

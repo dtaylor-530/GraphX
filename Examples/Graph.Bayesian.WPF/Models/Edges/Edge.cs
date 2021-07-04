@@ -5,11 +5,17 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using Graph.Bayesian.WPF.Infrastructure;
+using Graph.Bayesian.WPF.Models.Vertices;
 using GraphX.Common.Models;
 using ReactiveUI;
 
 namespace Graph.Bayesian.WPF.Models
 {
+
+    public interface IGraphObject
+    {
+        
+    }
 
     public enum State
     {
@@ -64,6 +70,9 @@ namespace Graph.Bayesian.WPF.Models
         public Edge(Vertex source, Vertex target, double weight = 1, Filter? filterSource = null, Filter? filterTarget = null, bool isRateSensitiveToTarget = false, bool isRateSensitiveToSource = false)
          : base(source, target, weight)
         {
+
+            ID = IDFactory.Get;
+
             duration = states
                 .Select(a => a switch
                 {

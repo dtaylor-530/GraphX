@@ -1,5 +1,6 @@
 using Graph.Bayesian.WPF.Infrastructure;
 using Graph.Bayesian.WPF.Models;
+using Graph.Bayesian.WPF.Models.Vertices;
 using GraphX.Controls;
 using QuikGraph;
 

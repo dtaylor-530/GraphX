@@ -1,5 +1,4 @@
 ﻿using Graph.Bayesian.WPF.Infrastructure;
-using Graph.Bayesian.WPF.ViewModel;
 using System;
 using System.Reactive.Linq;
 using System.Collections.Generic;

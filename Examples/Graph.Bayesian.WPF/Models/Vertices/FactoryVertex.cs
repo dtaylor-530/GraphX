@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Graph.Bayesian.WPF.Infrastructure;
 using Graph.Bayesian.WPF.Models.Vertices;
-using Graph.Bayesian.WPF.ViewModel;
 
 namespace Graph.Bayesian.WPF.Models
 {
@@ -17,14 +16,14 @@ namespace Graph.Bayesian.WPF.Models
         {
             subject
                 .SelectMany(service => service as IObservable<Catalogue>)
-                .JoinRight(TypesChangeSet.SelectOfType(typeof(CatalogueVertex)))
+                .JoinRight(Types.WhereTypeIs(typeof(CatalogueVertex)))
                 .Select(a =>
                 {
                     return new CatalogueMessage(this.ID.ToString(), a.Item2, a.Item1);
                 })
-               .Subscribe(OutMessages.OnNext);
+               .Subscribe(Out.OnNext);
 
-            InMessages
+            In
                 .OfType<OrderMessage>()
                 .Subscribe(a =>
                 {
@@ -35,7 +34,7 @@ namespace Graph.Bayesian.WPF.Models
                     OnPropertyChanged(nameof(LastOrderChange));
                 });
 
-            InMessages
+            In
                 .OfType<OrderMessage>()
                 .WithLatestFrom(subject)
                 .Subscribe(a =>
@@ -49,7 +48,7 @@ namespace Graph.Bayesian.WPF.Models
                 {
                     return new ProductMessage(this.ID.ToString(), string.Empty, a);
                 })
-                .Subscribe(OutMessages.OnNext);
+                .Subscribe(Out.OnNext);
         }
 
         public Order Order { get; private set; }

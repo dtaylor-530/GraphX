@@ -21,11 +21,12 @@ namespace Graph.Bayesian.WPF.Models.Vertices.History
                 .MergeMany(a => a)
                 // Spurious messages can come in too quickly hence the arbitary delay
                 .Throttle(TimeSpan.FromSeconds(0.5))
+                .Select(a=>a?.Selected)
                 .WhereNotNull()
                 .ObserveOnDispatcher()
                 .Subscribe(a =>
                 {
-                    Out.OnNext(a.Selected);
+                    Out.OnNext(a);
 
                 });
 

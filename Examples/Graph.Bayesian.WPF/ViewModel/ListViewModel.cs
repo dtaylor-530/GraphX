@@ -150,7 +150,8 @@ namespace Graph.Bayesian.WPF.ViewModel
                 .OfType<ChangeSetInput<T, TKey>>().Select(a => a.ChangeSet)
                 .Filter(subject
                 .In
-                .OfType<FilterInput<T>>().Select(a => new Func<T, bool>(c => a.Filter.Filter(c))))
+                .OfType<FilterInput<T>>().Select(a => new Func<T, bool>(c => a.Filter.Filter(c)))
+                .StartWith(a => true))
                 .Sort(subject
                 .In
                 .OfType<ComparerInput<T>>().Select(a => a.Comparer))

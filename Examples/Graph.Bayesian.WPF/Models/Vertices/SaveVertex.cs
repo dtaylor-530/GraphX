@@ -11,10 +11,7 @@ using System.Windows.Input;
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
     public class SaveVertex : Vertex
-    {
-        
-        private int input;
-
+    {       
         public SaveVertex()
         {
             var clickCommand = ReactiveUI.ReactiveCommand.Create<Unit, Unit>(unit =>

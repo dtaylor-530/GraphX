@@ -35,8 +35,6 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                 return Unit.Default;
             });
 
-
-
             In
                 .OfType<HistoryMessage<PropertyChange>>()
                 .Select(a => a.Data)

@@ -49,7 +49,9 @@ namespace Graph.Bayesian.WPF.Models.Edges
         /// <summary>
         /// Default parameter-less constructor (for serialization compatibility)
         /// </summary>
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         public OneWayToTargetFilterEdge() : base(null, null, 1)
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         {
         }
     }

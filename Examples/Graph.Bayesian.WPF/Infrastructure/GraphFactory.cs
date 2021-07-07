@@ -4,6 +4,7 @@ using Graph.Bayesian.WPF.Models;
 using Graph.Bayesian.WPF.Models.Edges;
 using Graph.Bayesian.WPF.Models.Vertices;
 using Graph.Bayesian.WPF.Models.Vertices.History;
+using Graph.Bayesian.WPF.Models.Vertices.Pagination;
 
 namespace Graph.Bayesian.WPF.Infrastructure
 {
@@ -20,7 +21,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
             return dataGraph;
         }
 
-        public static Models.Graph Create4()
+        public static Models.Graph CreateHistory()
         {
             var dataGraph = new Models.Graph();
 
@@ -30,7 +31,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
             var historyVertex = new HistoryVertex();
             dataGraph.AddVertex(historyVertex);
 
-            var historyCurrentVertex = new HistoryCurrentVertex();
+            var historyCurrentVertex = new HistoryChangeSetVertex();
             dataGraph.AddVertex(historyCurrentVertex);    
             
             var movementVertex = new MovementVertex();
@@ -48,7 +49,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
             return dataGraph;
         }
 
-        public static Models.Graph Create3()
+        public static Models.Graph CreateBayes()
         {
             var dataGraph = new Models.Graph();
 
@@ -78,6 +79,68 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
             var dataEdge3 = new Edge(dataVertex, dataVertex2, isRateSensitiveToSource:true, isRateSensitiveToTarget:true);
             dataGraph.AddEdge(dataEdge3);
+
+            return dataGraph;
+        }
+
+
+        public static Models.Graph CreatePagination()
+        {
+            var dataGraph = new Models.Graph();
+
+            var paginationVertex = new PaginationVertex();
+            dataGraph.AddVertex(paginationVertex);
+
+            var paginationLimitVertex = new PageSizeLimitVertex();
+            dataGraph.AddVertex(paginationLimitVertex);   
+            
+            var sortVertex = new SortVertex();
+            dataGraph.AddVertex(sortVertex);
+
+            var listVertex = new ListVertex();
+            dataGraph.AddVertex(listVertex);         
+            
+            var inputVertex = new EnumerableInputVertex();
+            dataGraph.AddVertex(inputVertex);
+
+            var paginationCurrentVertex = new CurrentPageVertex();
+            dataGraph.AddVertex(paginationCurrentVertex);
+
+            var paginationMaxPagesVertex = new MaxPagesVertex();
+            dataGraph.AddVertex(paginationMaxPagesVertex);
+
+            var movementVertex = new MovementVertex();
+            dataGraph.AddVertex(movementVertex);
+
+            var filterVertex = new FilterVertex();
+            dataGraph.AddVertex(filterVertex);
+
+            var dataEdge6 = new UnFilteredEdge(paginationLimitVertex, paginationVertex);
+            dataGraph.AddEdge(dataEdge6);         
+            
+            var dataEdge7 = new UnFilteredEdge(listVertex, paginationVertex);
+            dataGraph.AddEdge(dataEdge7);         
+            
+            var dataEdge8 = new UnFilteredEdge(paginationMaxPagesVertex, paginationVertex);
+            dataGraph.AddEdge(dataEdge8);           
+            
+            var dataEdge9 = new UnFilteredEdge(movementVertex, paginationCurrentVertex);
+            dataGraph.AddEdge(dataEdge9);        
+            
+            var dataEdge10 = new UnFilteredEdge(paginationCurrentVertex, paginationVertex);
+            dataGraph.AddEdge(dataEdge10);       
+            
+            var dataEdge11 = new OneWayToTargetEdge(inputVertex, listVertex);
+            dataGraph.AddEdge(dataEdge11);       
+            
+            var dataEdge12 = new OneWayToTargetEdge(sortVertex, listVertex);
+            dataGraph.AddEdge(dataEdge12);
+
+            var dataEdge13 = new OneWayToTargetEdge(filterVertex, listVertex);
+            dataGraph.AddEdge(dataEdge13);
+
+            //var dataEdge14 = new OneWayToTargetEdge(listVertex, paginationVertex);
+            //dataGraph.AddEdge(dataEdge14);
 
             return dataGraph;
         }

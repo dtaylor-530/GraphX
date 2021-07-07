@@ -14,10 +14,8 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             ClickCommand = ReactiveUI.ReactiveCommand.Create<Unit, Unit>(a =>
             {
                 Out.OnNext(new DataMessage<DataVertex.IntData>(ID.ToString(), string.Empty, DateTime.Now, new(ID, Input)));
-
                 return a;
             });
-
         }
 
         public int Input

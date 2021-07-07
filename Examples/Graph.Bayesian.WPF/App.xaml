@@ -8,11 +8,13 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <controls:SharedResourceDictionary Source="/Flip.WPF;component/Themes/Generic.xaml"></controls:SharedResourceDictionary>
+                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Bayes.xaml"></controls:SharedResourceDictionary>
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Controls.xaml"></controls:SharedResourceDictionary>
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Filter.xaml"></controls:SharedResourceDictionary>
-                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/MainVertex.xaml"></controls:SharedResourceDictionary>                
+                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Main.xaml"></controls:SharedResourceDictionary>                
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Models.xaml"></controls:SharedResourceDictionary>                
-                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/NavigationVertex.xaml"></controls:SharedResourceDictionary>                
+                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Navigation.xaml"></controls:SharedResourceDictionary>                
+                <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/List.xaml"></controls:SharedResourceDictionary>                
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/Vertices.xaml"></controls:SharedResourceDictionary>                
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/ViewModel.xaml"></controls:SharedResourceDictionary>                
                 <controls:SharedResourceDictionary Source="/Graph.Bayesian.WPF;component/View/History.xaml"></controls:SharedResourceDictionary>                

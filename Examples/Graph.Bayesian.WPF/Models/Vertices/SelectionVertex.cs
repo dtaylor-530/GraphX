@@ -23,7 +23,8 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             var dis = catalogueSubject
                 .WhereNotNull()
                 .Switch()
-                .Select(a=> a)
+                .Select(a => a)
+                .Select(a => new ChangeSetInput<Selection>(a))
                 .Subscribe(catalogueViewModel.OnNext);
 
             In
@@ -38,9 +39,10 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             In
                 .OfType<SelectionMessage>()
                 .SelectMany(a => a.Catalogue.Value)
-                .Merge((catalogueViewModel as IObservable<Selection>)
-                .Select(a => { return a; })
+                .Merge((catalogueViewModel as IObservable<ListOutput<Selection>>)
+                .Select(a => { return a.Selected; })
                 .WhereNotNull())
+                 .DistinctUntilChanged(a => a.Guid)
                 .Select(a => (ListChange)new ItemChange<Selection>(a))
                 .Merge(In
                 .OfType<ListEditMessage>()

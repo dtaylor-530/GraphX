@@ -8,6 +8,8 @@ using System.Reactive.Subjects;
 
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
+
+
     public record ListChange;
     public record EditChange(ListEdit Edit) : ListChange;
     public record ItemChange<T>(T Item) : ListChange where T : Record, ISelected;

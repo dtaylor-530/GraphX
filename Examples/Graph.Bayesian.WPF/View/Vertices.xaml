@@ -114,31 +114,6 @@
         </Button>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type vertices:DataVertex}">
-        <Button Command="{Binding ClickCommand}" >
-            <UniformGrid Columns="1">
-                <TextBlock Text="{Binding ID}"/>
-                <TextBlock Text="{Binding TypeName}" />
-                <TextBlock Text="{Binding LastMessage.From}" />
-                <controls:FlipControl Integer="{Binding Data}"  />
-            </UniformGrid>
-        </Button>
-    </DataTemplate>
-
-
-
-    <DataTemplate DataType="{x:Type vertices:DataInputVertex}">
-        <Button Command="{Binding ClickCommand}" >
-            <UniformGrid Columns="1">
-                <TextBlock Text="{Binding ID}"/>
-                <TextBlock Text="{Binding TypeName}" />
-                <TextBlock Text="{Binding LastMessage.From}" />
-                <pt:SpinControl  Value="{Binding Input}" SmallChange="1" LargeChange="10">
-                    <TextBlock Text="{Binding Input}"  />
-                </pt:SpinControl>
-            </UniformGrid>
-        </Button>
-    </DataTemplate>
     
 
     <DataTemplate DataType="{x:Type vertices:NavigationVertex}">

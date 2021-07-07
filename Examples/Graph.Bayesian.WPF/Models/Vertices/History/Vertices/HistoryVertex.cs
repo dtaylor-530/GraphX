@@ -13,63 +13,80 @@ namespace Graph.Bayesian.WPF.Models.Vertices
 {
     public class HistoryVertex : Vertex
     {
-        private readonly HistoryService<PropertyChange, Guid> history = HistoryServiceCreator<PropertyChange, Guid>
+        private readonly HistoryService<PropertyChange, Guid> historyService = HistoryServiceCreator<PropertyChange, Guid>
             .Create((a, b) => a?.UpDate < b.UpDate ? PositionType.Anterior : PositionType.Posterior);
-        private readonly GroupService<PropertyChange, Guid> groupService = new();
+        private readonly GroupService<PropertyChange, Guid> groupService = new(a => a.GroupKey == HistoryModel.Group.Current);
+        private readonly SelectService<PropertyChange, Guid> selectService = new();
         private readonly ReadOnlyObservableCollection<ListViewModel<GroupViewItem>> collection;
         private readonly ReadOnlyObservableCollection<GroupViewItem> selectCollection;
 
         public HistoryVertex()
         {
-            Random r = new();
             groupService
                 .Select(a => a)
                 .Sort(SortExpressionComparer<ListViewModel<GroupViewItem>>.Ascending(a =>
                 {
-                    return Enum.Parse(typeof(PositionalModel.Group), a.Key) switch
+                    return Enum.Parse(typeof(HistoryModel.Group), a.Key) switch
                     {
-                        PositionalModel.Group.Ante => 3,
-                        PositionalModel.Group.Current => 2,
-                        PositionalModel.Group.Post => 1,
+                        HistoryModel.Group.Ante => 3,
+                        HistoryModel.Group.Current => 2,
+                        HistoryModel.Group.Post => 1,
                         _ => throw new NotImplementedException("Not Implemented"),
                     };
                 }))
+                .ObserveOnDispatcher()
                 .Bind(out collection)
-                .MergeMany(a => a)
-                .Do(a =>
-                {
-                    if (a.Value is PropertyChange change)
-                        //    Out.OnNext(new HistoryMessage<PropertyChange>(this.ID.ToString(), string.Empty, DateTime.Now, change));
-                        history.OnNext(new Input<PropertyChange, Guid>(change.Key, change));
-                })
+                .Subscribe();
+
+            selectService
                 .ToObservableChangeSet()
+                .ObserveOnDispatcher()
                 .Bind(out selectCollection)
                 .Subscribe();
 
-            history.Subscribe(groupService);
+            groupService
+                .Subscribe(selectService);
+
+            selectService
+                .Select(a =>
+                {
+
+                    if (a.Value is PropertyChange change)
+                        return new Input<PropertyChange, Guid>(change.Key, change);
+                    return null;
+
+                })
+                .WhereNotNull()
+                .Subscribe(a =>
+                {
+         
+                        historyService.OnNext(a);
+               
+                });
+
+            historyService
+                .Subscribe(groupService);
 
             In
                .OfType<PropertyChangeMessage>()
                .Subscribe(a =>
                {
-                   history.OnNext(new Input<PropertyChange, Guid>(a.Change.Key, a.Change));
+                   historyService.OnNext(new Input<PropertyChange, Guid>(a.Change.Key, a.Change));
                });
 
             In
                .OfType<MovementMessage>()
-               .Where(a => a.To == ID.ToString())
+               //.Where(a => a.To == ID.ToString())
                .Subscribe(msg =>
                {
-                   history.OnNext(new Input<Movement, Guid>(Guid.NewGuid(), msg.Movement));
+                   historyService.OnNext(new Input<Movement, Guid>(Guid.NewGuid(), msg.Movement));
                });
 
 
-            history
-               .Where(a => a.Success)
-               .SelectMany(a => a.Value.Where(a => a.Current.GroupKey.Equals(PositionalModel.Group.Current) && a.Reason == ChangeReason.Add).Select(a => a.Current))
+            historyService
                .Subscribe(vv =>
                {
-                   Out.OnNext(new HistoryCurrentMessage<PropertyChange>(ID.ToString(), vv.Value.ParentId.ToString(), DateTime.Now, vv.Value));
+                   Out.OnNext(new HistoryCurrentMessage<PropertyChange, Guid>(ID.ToString(), string.Empty, DateTime.Now, vv));
                });
 
         }
@@ -78,6 +95,4 @@ namespace Graph.Bayesian.WPF.Models.Vertices
 
         public ReadOnlyObservableCollection<GroupViewItem> SelectCollection => selectCollection;
     }
-
-
 }

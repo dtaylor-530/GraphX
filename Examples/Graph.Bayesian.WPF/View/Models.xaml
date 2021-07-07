@@ -23,11 +23,11 @@
 
     <DataTemplate DataType="{x:Type history:PropertyChange}">
         <StackPanel>
-            <TextBlock Text="{Binding Key}" FontSize="4" Foreground="Indigo"></TextBlock>
+            <!--<TextBlock Text="{Binding Key}" FontSize="4" Foreground="Indigo"></TextBlock>
             <TextBlock Text="{Binding ParentId}" FontSize="4"  Foreground="Purple"></TextBlock>
-            <TextBlock Text="{Binding Name}" FontSize="4"  Foreground="Orange"></TextBlock>
-            <TextBlock Text="{Binding UpDate, StringFormat={}{0:hh : mm : ss}}" FontSize="4"  Foreground="DeepPink"></TextBlock>
-            <ContentControl Content="{Binding Value}" FontSize="4"  Foreground="OrangeRed"></ContentControl>
+            <TextBlock Text="{Binding Name}" FontSize="4"  Foreground="Orange"></TextBlock>-->
+            <TextBlock Text="{Binding UpDate, StringFormat={}{0:hh : mm : ss.ff}}"   Foreground="DeepPink"></TextBlock>
+            <!--<ContentControl Content="{Binding Value}" FontSize="4"  Foreground="OrangeRed"></ContentControl>-->
         </StackPanel>
     </DataTemplate>
 
@@ -47,8 +47,9 @@
 
     <DataTemplate DataType="{x:Type history:GroupViewItem}">
         <StackPanel>
-            <TextBlock Text="{Binding GroupKey}" FontSize="4"></TextBlock>
-            <ContentControl Content="{Binding Value}" FontSize="4"></ContentControl>
+            <TextBlock Text="{Binding GroupKey}" FontSize="10"></TextBlock>
+            <TextBlock Text="{Binding Key}" FontSize="10"></TextBlock>
+            <ContentControl Content="{Binding Value}"></ContentControl>
         </StackPanel>
     </DataTemplate>
 
@@ -59,6 +60,7 @@
             <TextBlock Text="{Binding IsSelected}"/>
         </StackPanel>
     </DataTemplate>
+
 
     <DataTemplate DataType="{x:Type infra:ProductToken}">
         <StackPanel>

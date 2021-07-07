@@ -11,9 +11,10 @@ namespace Graph.Bayesian.WPF.Infrastructure
     public interface ISelected { bool IsSelected { get; init; } }
 
     public record Record;
+    public record SelectableRecord(bool IsSelected) : Record, ISelected;
     public record Order(Guid ProductGuid, string ProductId, string FactoryId) : Record;
     public record ProductToken(string ProductId, string FactoryId, bool IsSelected) : Record, ISelected;
-    public record Selection(Guid Guid, string ProductId, string FactoryId, bool IsSelected) : Record, ISelected;
+    public record Selection(Guid Guid, string ProductId, string FactoryId, bool IsSelected) : SelectableRecord(IsSelected);
     public record Catalogue(string FactoryId, IReadOnlyCollection<ProductToken> Selections);
     public record Selections(IReadOnlyCollection<Selection> Value);
     public record Product(Guid Guid, string ProductId, string FactoryId, Vertex? ViewModel) : Record;
@@ -26,18 +27,20 @@ namespace Graph.Bayesian.WPF.Infrastructure
         public ViewModelFactory(string id)
         {
             var methods = typeof(GraphFactory).GetMethods().Where(a => a.Name.Contains("Create"));
-            var productsSelection = methods.Select(a => new ProductToken(a.Name, id, false)).ToArray();
+            var productsSelection = methods.Select(a => new ProductToken(Convert(a.Name), id, false)).ToArray();
 
             catalogues.OnNext(new Catalogue(id, productsSelection));
 
             In.Subscribe(a =>
             {
-                var graph = (Models.Graph?)methods.Single(ae => ae.Name == a.ProductId).Invoke(graphFactory.Value, Array.Empty<object>());
+                var graph = (Models.Graph?)methods.Single(ae => Convert(ae.Name) == a.ProductId).Invoke(graphFactory.Value, Array.Empty<object>());
                 var graphViewModel = new GraphVertex();
                 graphViewModel.OnNext(new GraphMessage(string.Empty, graphViewModel.ID.ToString(), DateTime.Now, graph));
                 Out.OnNext(new Product(a.ProductGuid, a.ProductId, a.FactoryId, graphViewModel));
             });
         }
+
+        static string Convert(string name) => name.Remove(0, "Create".Length);
 
         public IDisposable Subscribe(IObserver<Catalogue> observer)
         {

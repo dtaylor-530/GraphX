@@ -16,7 +16,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void OnError(Exception error)
@@ -46,8 +46,8 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
     public class Service<TIn, TOut> : ISubject<TIn, TOut>
     {
-        readonly ReplaySubject<TIn> replaySubjectIn = new();
-        readonly ReplaySubject<TOut> replaySubjectOut = new();
+        readonly Subject<TIn> replaySubjectIn = new();
+        readonly Subject<TOut> replaySubjectOut = new();
 
         public void OnCompleted()
         {

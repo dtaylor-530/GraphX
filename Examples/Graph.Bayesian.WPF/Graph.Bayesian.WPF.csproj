@@ -17,6 +17,7 @@
     <PackageReference Include="fasterflect" Version="3.0.0" />
     <PackageReference Include="IX.Observable" Version="0.7.3" />
     <PackageReference Include="ObservableConcurrentQueue" Version="1.1.0" />
+    <PackageReference Include="ReactiveUI.Validation" Version="2.1.1" />
     <PackageReference Include="ReactiveUI.WPF" Version="14.1.1" />
     <PackageReference Include="Splat.Ninject" Version="11.1.1" />
     <PackageReference Include="System.Collections" Version="4.3.0" />

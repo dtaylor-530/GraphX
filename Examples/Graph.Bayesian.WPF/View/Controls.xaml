@@ -39,8 +39,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="1" CornerRadius="5" MinWidth="80">
-                            <Viewbox>
-                                <ContentPresenter IsEnabled="{Binding Vertex.IsEnabled}" Content="{TemplateBinding Vertex}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"/>
+                            <Viewbox DataContext="{TemplateBinding Vertex}">
+                                <ContentPresenter IsEnabled="{Binding IsEnabled, Mode=OneWay}" Content="{Binding Mode=OneTime}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2"/>
                             </Viewbox>
                             <Border.Style>
                                 <Style TargetType="Border">

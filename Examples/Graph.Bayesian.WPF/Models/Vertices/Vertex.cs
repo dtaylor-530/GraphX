@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Windows.Input;
 using DynamicData;
 using Fasterflect;
@@ -13,6 +17,11 @@ using Graph.Bayesian.WPF.ViewModel;
 using GraphX.Common.Models;
 using PropertyTools.DataAnnotations;
 using ReactiveUI;
+using ReactiveUI.Validation.Contexts;
+using ReactiveUI.Validation.Formatters;
+using ReactiveUI.Validation.Formatters.Abstractions;
+using ReactiveUI.Validation.Helpers;
+using Splat;
 
 namespace Graph.Bayesian.WPF.Models.Vertices
 {
@@ -22,7 +31,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
      * Some of the useful VertexBase members are:
      *  - ID property that stores unique positive identfication number. Property must be filled by user.
      */
-    public class Vertex : VertexBase, ISubject<Message>, System.ComponentModel.INotifyPropertyChanged
+    public class Vertex : VertexBase, ISubject<Message>, IReactiveValidationObject
     {
         private readonly Lazy<string> type;
         private readonly TypesService typesService;
@@ -46,7 +55,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             TypesViewModel = new();
             ID = IDFactory.Get;
             type = new(() => GetType().Name);
-            typesService.RemoveKey().Subscribe(TypesViewModel.OnNext);
+            typesService.RemoveKey().Select(a=>new ChangeSetInput<TypeRecord>(a)).Subscribe(TypesViewModel.OnNext);
 
             ClickCommand = ReactiveCommand.Create<Unit, Unit>(a =>
             {
@@ -91,6 +100,27 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                 {
                     PropertyHasChanged(c);
                 });
+
+
+            Formatter = 
+                         Locator.Current.GetService<IValidationTextFormatter<string>>() ??
+                         SingleLineFormatter.Default;
+
+
+            ValidationContext = new ValidationContext();
+
+            this.ListenToValidationStatusChanges();
+            //    ValidationContext.Validations
+            //        .ToObservableChangeSet()
+            //        .ToCollection()
+            //        .Select(components => components
+            //            .Select(component => component
+            //                .ValidationStatusChange
+            //                .Select(_ => component))
+            //            .Merge()
+            //            .StartWith(ValidationContext))
+            //        .Switch()
+            //        .Subscribe(OnValidationStatusChange);
         }
 
         private void PropertyHasChanged((int, string) c)
@@ -158,29 +188,29 @@ namespace Graph.Bayesian.WPF.Models.Vertices
 
         public ITypesDictionary TypesDictionary => typesService;
 
-        [Browsable(true)]
+        [System.ComponentModel.Browsable(true)]
         [HeaderPlacement(HeaderPlacement.Collapsed)]
         public string TypeName => type.Value;
 
         public bool IsSelected { get; private set; }
 
-        public bool IsEnabled { get; private set; }
+        public bool IsEnabled { get; private set; } = true;
 
         //public string LastId { get; protected set; }
         [MonitorPropertyChange(false)]
         public int UpdatedCount { get; private set; }
 
-        [Browsable(true)]
+        [System.ComponentModel.Browsable(true)]
         [HeaderPlacement(HeaderPlacement.Collapsed)]
         [MonitorPropertyChange(false)]
         public bool LastUpdated { get; private set; }
 
-        [Browsable(true)]
+        [System.ComponentModel.Browsable(true)]
         [HeaderPlacement(HeaderPlacement.Collapsed)]
         [MonitorPropertyChange(false)]
         public Message? LastMessage { get; private set; }
 
-        [Browsable(true)]
+        [System.ComponentModel.Browsable(true)]
         [HeaderPlacement(HeaderPlacement.Collapsed)]
         [MonitorPropertyChange(false)]
         public DateTime LastMessageUpdate { get; private set; }
@@ -219,6 +249,41 @@ namespace Graph.Bayesian.WPF.Models.Vertices
         {
             PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
+
+        #region Validation
+
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+        public ValidationContext ValidationContext { get; } = new ValidationContext();
+
+        public bool HasErrors => !this.ValidationContext.GetIsValid();
+
+        public IValidationTextFormatter<string> Formatter { get; }
+
+        public HashSet<string> MentionedPropertyNames { get; } = new HashSet<string>();
+
+        public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        {
+            this.PropertyChanging?.Invoke(this, args);
+        }
+
+        public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        {
+            this.OnPropertyChanged(args.PropertyName);
+        }
+
+        public void RaiseErrorsChanged(string propertyName = "")
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        public IEnumerable GetErrors(string? propertyName) => ValidationObjectHelper.GetErrors(this, propertyName);
+
+        #endregion Validation
+
+
     }
 
 

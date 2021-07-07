@@ -14,7 +14,7 @@ namespace Graph.Bayesian.WPF.Infrastructure
 
     public record HistoryMessage<T>(string From, string To, DateTime Sent, /*DateTime Received,*/ T Data) : DataMessage<T>(From, To, Sent, /*DateTime Received,*/ Data) where T : notnull;
 
-    public record HistoryCurrentMessage<T>(string From, string To, DateTime Sent, /*DateTime Received,*/ T Data) : DataMessage<T>(From, To, Sent, /*DateTime Received,*/ Data) where T : notnull;
+    public record HistoryCurrentMessage<T, TKey>(string From, string To, DateTime Sent, /*DateTime Received,*/ OperationResult<T, TKey> Data) : DataMessage<OperationResult<T, TKey>>(From, To, Sent, /*DateTime Received,*/ Data) where T : notnull where TKey : notnull;
 
     public record DataMessage<T>(string From, string To,/* double Rate,*/ DateTime Sent, /*DateTime Received,*/ T Data) : Message(From, To, Sent, Data) where T : notnull;
 

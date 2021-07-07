@@ -22,10 +22,11 @@ namespace Graph.Bayesian.WPF.Models.Vertices
         public CatalogueVertex()
         {
 
-           catalogueSubject
-          .WhereNotNull()
-          .SelectMany(a => a)
-          .Subscribe(catalogueViewModel.OnNext);
+            catalogueSubject
+           .WhereNotNull()
+           .SelectMany(a => a)
+           .Select(a => new ChangeSetInput<ProductToken>(a))
+           .Subscribe(catalogueViewModel.OnNext);
 
             In
                 .OfType<CatalogueMessage>()
@@ -36,10 +37,10 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                     OnPropertyChanged(nameof(LastCatalogueChange));
                 });
 
-            var a = (catalogueViewModel as IObservable<ProductToken>)
-                .Select(a => { return a; })
+            var a = (catalogueViewModel as IObservable<ListOutput<ProductToken>>)
+                .Select(a => { return a.Selected; })
                 .WhereNotNull();
-          
+
             var b = In
                .OfType<ListEditMessage>()
                .Select(a => (ListChange)new EditChange(a.ListEdit));
@@ -47,7 +48,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
             var c = In
                 .OfType<CatalogueMessage>()
                 .SelectMany(a => a.Catalogue.Selections);
-       
+
 
             _ = a
                 .Merge(c)
@@ -56,7 +57,7 @@ namespace Graph.Bayesian.WPF.Models.Vertices
                 .CombineLatest(catalogueSubject)
                 .Subscribe(a => a.Second.OnNext(a.First));
 
- 
+
 
             catalogueSubject
                 .Subscribe(b =>

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using GraphX.Common.Enums;
+using GraphX.Common.Exceptions;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using GraphX.Common.Enums;
-using GraphX.Common.Exceptions;
-using Brushes = System.Windows.Media.Brushes;
 using Size = System.Windows.Size;
 
 namespace GraphX.Controls
@@ -45,11 +44,10 @@ namespace GraphX.Controls
             return currentDPI;
         }
 
-
         private static ulong CalulateSize(Size desiredSize, double dpi)
         {
-            return (ulong) (desiredSize.Width*(dpi/DEFAULT_DPI) + 100) *
-                   (ulong) (desiredSize.Height*(dpi/DEFAULT_DPI) + 100);
+            return (ulong)(desiredSize.Width * (dpi / DEFAULT_DPI) + 100) *
+                   (ulong)(desiredSize.Height * (dpi / DEFAULT_DPI) + 100);
         }
 
         /// <summary>
@@ -77,7 +75,7 @@ namespace GraphX.Controls
                 {
                     var frameworkElement = canvas.Parent as FrameworkElement;
                     if (frameworkElement?.Parent is IZoomControl)
-                        vis = ((IZoomControl) frameworkElement.Parent).PresenterVisual;
+                        vis = ((IZoomControl)frameworkElement.Parent).PresenterVisual;
                 }
             }
 
@@ -91,8 +89,7 @@ namespace GraphX.Controls
 
             //Render the graphlayout onto the bitmap.
             renderBitmap.Render(vis);
-                
-           
+
             //Create a file stream for saving image
             using (FileStream outStream = new FileStream(path.LocalPath, FileMode.Create))
             {
@@ -100,19 +97,24 @@ namespace GraphX.Controls
                 BitmapEncoder encoder;
                 switch (itype)
                 {
-                    case ImageType.PNG: encoder = new PngBitmapEncoder();
+                    case ImageType.PNG:
+                        encoder = new PngBitmapEncoder();
                         break;
-                    case ImageType.JPEG: encoder = new JpegBitmapEncoder() { QualityLevel = imgQuality };
+                    case ImageType.JPEG:
+                        encoder = new JpegBitmapEncoder() { QualityLevel = imgQuality };
                         break;
-                    case ImageType.BMP: encoder = new BmpBitmapEncoder();
+                    case ImageType.BMP:
+                        encoder = new BmpBitmapEncoder();
                         break;
-                    case ImageType.GIF: encoder = new GifBitmapEncoder();
+                    case ImageType.GIF:
+                        encoder = new GifBitmapEncoder();
                         break;
-                    case ImageType.TIFF: encoder = new TiffBitmapEncoder();
+                    case ImageType.TIFF:
+                        encoder = new TiffBitmapEncoder();
                         break;
                     default: throw new GX_InvalidDataException("ExportToImage() -> Unknown output image format specified!");
                 }
-                
+
                 //Push the rendered bitmap to it
                 encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
                 //Save the data to the stream
@@ -129,8 +131,6 @@ namespace GraphX.Controls
                 surface.SetPrintMode(false, true, 100);
         }
 
-
-
         public static void PrintVisualDialog(Visual surface, string description = "", bool compat = false)
         {
             try
@@ -142,7 +142,7 @@ namespace GraphX.Controls
                 double oldHeight = 0;
                 if (isCtrl && compat)
                 {
-                    var ctrl = (Control) surface;
+                    var ctrl = (Control)surface;
                     oldLR = ctrl.UseLayoutRounding;
                     if (oldLR != true) ctrl.UseLayoutRounding = true;
 
@@ -163,14 +163,13 @@ namespace GraphX.Controls
                     ctrl.UseLayoutRounding = oldLR;
                     ctrl.Width = oldWidth;
                     ctrl.Height = oldHeight;
-                }            
+                }
             }
             catch (Exception)
             {
                 MessageBox.Show("Unexpected exception occured while trying to access default printer. Please ensure that default printer is installed in your OS!");
             }
         }
-
 
         public static void PrintToFit(IGraphAreaBase ga, string description, int margin = 0)
         {
@@ -215,7 +214,7 @@ namespace GraphX.Controls
                 //store original scale
                 var originalScale = visual.LayoutTransform;
                 //get scale from DPI
-                var scale = dpi/DEFAULT_DPI;
+                var scale = dpi / DEFAULT_DPI;
                 //Transform the Visual to scale
                 var group = new TransformGroup();
                 group.Children.Add(new ScaleTransform(scale, scale));
@@ -231,8 +230,6 @@ namespace GraphX.Controls
                 ga.SetPrintMode(false, true, margin);
             }
         }
-
-
 
         #region OTHER
 
@@ -299,39 +296,39 @@ namespace GraphX.Controls
             }
         }
 
-      /*  private static RenderTargetBitmap RenderTargetBitmap(IGraphAreaBase surface, bool useZoomControlSurface, double imgdpi)
-        {
-            UIElement vis = surface;
-            if (useZoomControlSurface)
-            {
-                var zoomControl = surface.Parent as IZoomControl;
-                if (zoomControl != null)
-                    vis = zoomControl.PresenterVisual;
-                else
-                {
-                    var frameworkElement = surface.Parent as FrameworkElement;
-                    if (frameworkElement != null && frameworkElement.Parent is IZoomControl)
-                        vis = ((IZoomControl) frameworkElement.Parent).PresenterVisual;
-                }
-            }
-            var renderBitmap =
-                new RenderTargetBitmap(
-                //(int)surface.ActualWidth,
-                //(int)surface.ActualHeight,
-                    (int)(vis.DesiredSize.Width * (imgdpi / 96) + 100),
-                    (int)(vis.DesiredSize.Height * (imgdpi / 96) + 100),
-                    imgdpi,
-                    imgdpi,
-                    PixelFormat);
+        /*  private static RenderTargetBitmap RenderTargetBitmap(IGraphAreaBase surface, bool useZoomControlSurface, double imgdpi)
+          {
+              UIElement vis = surface;
+              if (useZoomControlSurface)
+              {
+                  var zoomControl = surface.Parent as IZoomControl;
+                  if (zoomControl != null)
+                      vis = zoomControl.PresenterVisual;
+                  else
+                  {
+                      var frameworkElement = surface.Parent as FrameworkElement;
+                      if (frameworkElement != null && frameworkElement.Parent is IZoomControl)
+                          vis = ((IZoomControl) frameworkElement.Parent).PresenterVisual;
+                  }
+              }
+              var renderBitmap =
+                  new RenderTargetBitmap(
+                  //(int)surface.ActualWidth,
+                  //(int)surface.ActualHeight,
+                      (int)(vis.DesiredSize.Width * (imgdpi / 96) + 100),
+                      (int)(vis.DesiredSize.Height * (imgdpi / 96) + 100),
+                      imgdpi,
+                      imgdpi,
+                      PixelFormat);
 
-            vis.SetValue(Panel.BackgroundProperty, Brushes.White);
-            //Render the graphlayout onto the bitmap.
-            renderBitmap.Render(vis);
+              vis.SetValue(Panel.BackgroundProperty, Brushes.White);
+              //Render the graphlayout onto the bitmap.
+              renderBitmap.Render(vis);
 
-            return renderBitmap;
+              return renderBitmap;
 
-        }
-        */
+          }
+          */
         #endregion
 
     }

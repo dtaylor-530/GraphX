@@ -33,7 +33,10 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms
             public double Position;
 
             /* Width and Height Optimization */
-
+            public override string ToString()
+            {
+                return $"Tranlate {Translate}, Position {Position}";
+            }
         }
     }
 }

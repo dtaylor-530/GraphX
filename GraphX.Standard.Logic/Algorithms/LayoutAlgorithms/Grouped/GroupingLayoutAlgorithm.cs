@@ -1,21 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using GraphX.Measure;
-using GraphX.Common;
+﻿using GraphX.Common;
 using GraphX.Common.Exceptions;
 using GraphX.Common.Interfaces;
 using GraphX.Logic.Algorithms.OverlapRemoval;
-using GraphX.Logic.Helpers;
+using GraphX.Measure;
 using QuikGraph;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
 {
     public class GroupingLayoutAlgorithm<TVertex, TEdge, TGraph> : LayoutAlgorithmBase<TVertex, TEdge, TGraph>
-        where TVertex: class, IGraphXVertex
+        where TVertex : class, IGraphXVertex
         where TEdge : IGraphXEdge<TVertex>
         where TGraph : IVertexAndEdgeListGraph<TVertex, TEdge>
-    {        
+    {
 
         public override bool NeedVertexSizes { get { return true; } }
 
@@ -27,7 +26,7 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
         readonly GroupingLayoutAlgorithmParameters<TVertex, TEdge> _params;
 
         public GroupingLayoutAlgorithm(TGraph graph, IDictionary<TVertex, Point> positions, GroupingLayoutAlgorithmParameters<TVertex, TEdge> groupParams)
-            :base(graph, positions)
+            : base(graph, positions)
         {
             _params = groupParams;
             if (_params.GroupParametersList == null || _params.GroupParametersList.Count == 0)
@@ -42,18 +41,18 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
 
         public override void Compute(CancellationToken cancellationToken)
         {
-            var groups = _params.GroupParametersList.Select(a => a.GroupId).OrderByDescending(a=> a).ToList();
+            var groups = _params.GroupParametersList.Select(a => a.GroupId).OrderByDescending(a => a).ToList();
             var listRect = new Dictionary<object, Rect>();
             foreach (var group in groups)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var groupId = group;
-                var gp = _params.GroupParametersList.First(a=> a.GroupId == groupId);
+                var gp = _params.GroupParametersList.First(a => a.GroupId == groupId);
                 //get vertices of the same group
                 //var vertices = new List<TVertex>();
                 var vertices = VisitedGraph.Vertices.Where(a => a.GroupId == groupId).ToList();
                 //skip processing if there are no vertices in this group
-                if(vertices.Count == 0) continue;
+                if (vertices.Count == 0) continue;
                 //get edges between vertices in the same group
                 var edges = VisitedGraph.Edges.Where(a => a.Source.GroupId == a.Target.GroupId && a.Target.GroupId == groupId).ToList();
                 //create and compute graph for a group
@@ -79,29 +78,27 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
                 }
 
                 //write results to global positions storage
-                double?[] left = {null};
-                double?[] top = {null};
-                double?[] right = {null};
-                double?[] bottom = {null};
+                double? left = null, top = null, right = null, bottom = null;
                 gp.LayoutAlgorithm.VertexPositions.ForEach(a =>
                 {
-                    left[0] = left[0].HasValue ? (a.Value.X < left[0] ? a.Value.X : left[0]) : a.Value.X;
+                    left = left.HasValue ? (a.Value.X < left ? a.Value.X : left) : a.Value.X;
                     var w = a.Value.X + VertexSizes[a.Key].Width;
                     var h = a.Value.Y + VertexSizes[a.Key].Height;
-                    right[0] = right[0].HasValue ? (w > right[0] ? w : right[0]) : w;
-                    top[0] = top[0].HasValue ? (a.Value.Y < top[0] ? a.Value.Y : top[0]) : a.Value.Y;
-                    bottom[0] = bottom[0].HasValue ? (h > bottom[0] ? h : bottom[0]) : h;
+                    right = right.HasValue ? (w > right ? w : right) : w;
+                    top = top.HasValue ? (a.Value.Y < top ? a.Value.Y : top) : a.Value.Y;
+                    bottom = bottom.HasValue ? (h > bottom ? h : bottom) : h;
 
                     if (VertexPositions.ContainsKey(a.Key)) VertexPositions[a.Key] = a.Value;
                     else VertexPositions.Add(a.Key, a.Value);
                 });
+
                 if (_params.ArrangeGroups)
                 {
-                    if (left[0] == null) left[0] = 0;
-                    if (right[0] == null) right[0] = 0;
-                    if (top[0] == null) top[0] = 0;
-                    if (bottom[0] == null) bottom[0] = 0;
-                    listRect.Add(gp.GroupId, gp.ZoneRectangle ?? new Rect(new Point(left[0].Value, top[0].Value), new Point(right[0].Value, bottom[0].Value)));
+                    if (left == null) left = 0;
+                    if (right == null) right = 0;
+                    if (top == null) top = 0;
+                    if (bottom == null) bottom = 0;
+                    listRect.Add(gp.GroupId, gp.ZoneRectangle ?? new Rect(new Point(left.Value, top.Value), new Point(right.Value, bottom.Value)));
                 }
             }
 
@@ -109,13 +106,13 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var origList = listRect.ToDictionary(a => a.Key, a => a.Value);
-                var ora = _params != null && _params.OverlapRemovalAlgorithm != null ? _params.OverlapRemovalAlgorithm : new FSAAlgorithm<object>(listRect, new OverlapRemovalParameters {HorizontalGap = 10, VerticalGap = 10});
+                var ora = _params != null && _params.OverlapRemovalAlgorithm != null ? _params.OverlapRemovalAlgorithm : new FSAAlgorithm<object>(listRect, new OverlapRemovalParameters { HorizontalGap = 10, VerticalGap = 10 });
                 ora.Initialize(listRect);
                 ora.Compute(cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 ora.Rectangles.ForEach(a =>
                 {
-                    int group = (int) a.Key;
+                    int group = (int)a.Key;
                     //_params.GroupParametersList.FirstOrDefault(b => b.GroupId == (int)a.Key).ZoneRectangle = origList[a.Key];
                     ArrangeRectangle(a.Value, group, origList[a.Key]);
                 });
@@ -126,12 +123,12 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
         {
             var offsetX = rectangle.X - originalRect.X;
             var offsetY = rectangle.Y - originalRect.Y;
-            VertexPositions.Where(a => a.Key.GroupId == groupId).Select(a=> a.Key).ToList().ForEach(a =>
-            {
-                VertexPositions[a] = new Point( VertexPositions[a].X + offsetX, VertexPositions[a].Y + offsetY);
-            });
+            VertexPositions.Where(a => a.Key.GroupId == groupId).Select(a => a.Key).ToList().ForEach(a =>
+             {
+                 VertexPositions[a] = new Point(VertexPositions[a].X + offsetX, VertexPositions[a].Y + offsetY);
+             });
             var gp = _params.GroupParametersList.FirstOrDefault(a => a.GroupId == groupId);
-            if(gp == null)
+            if (gp == null)
                 throw new GX_ObjectNotFoundException("Grouped graph -> Can't find group data after calc!");
             gp.ZoneRectangle = rectangle;
         }
@@ -145,8 +142,7 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
         }
     }
 
-    public class AlgorithmGroupParameters<TVertex, TEdge>
-        where TVertex: class, IGraphXVertex
+    public class AlgorithmGroupParameters<TVertex, TEdge> : IAlgorithmGroupParameters<TVertex, TEdge> where TVertex : class, IGraphXVertex
         where TEdge : IGraphXEdge<TVertex>
     {
         /// <summary>

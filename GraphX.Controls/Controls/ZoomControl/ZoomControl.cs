@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphX.Controls.Models;
+using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
@@ -7,7 +8,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using GraphX.Controls.Models;
 
 namespace GraphX.Controls
 {
@@ -67,7 +67,7 @@ namespace GraphX.Controls
 
         private void RefocusView(object sender, ExecutedRoutedEventArgs e)
         {
-            
+
         }
 
         private void CanExecuteTrue(object sender, CanExecuteRoutedEventArgs e)
@@ -218,7 +218,7 @@ namespace GraphX.Controls
 
         private void CreateVisualBrushForViewFinder(Visual visual)
         {
-            _viewFinderDisplay.VisualBrush = new VisualBrush(visual) { Stretch = Stretch.Uniform, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top};
+            _viewFinderDisplay.VisualBrush = new VisualBrush(visual) { Stretch = Stretch.Uniform, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top };
         }
 
         private void DetachFromVisualTree()
@@ -458,7 +458,7 @@ namespace GraphX.Controls
         #region Drag and resize
         private void DragDisplayViewport(DragDeltaEventArgs e)
         {
-           // UpdateViewFinderDisplayContentBounds();
+            // UpdateViewFinderDisplayContentBounds();
             // get the scale of the view finder display panel, the selection rect, and the VisualBrush rect
 
             var scale = _viewFinderDisplay.Scale;
@@ -477,25 +477,25 @@ namespace GraphX.Controls
             if (viewportRect.Left < vbRect.Left)
                 dx = Math.Max(0, dx);
             else if (viewportRect.Left + dx < vbRect.Left)
-                    dx = vbRect.Left - viewportRect.Left;
+                dx = vbRect.Left - viewportRect.Left;
 
             // check right boundary
             if (viewportRect.Right > vbRect.Right)
                 dx = Math.Min(0, dx);
             else if (viewportRect.Right + dx > vbRect.Left + vbRect.Width)
-                    dx = vbRect.Left + vbRect.Width - viewportRect.Right;
-    
+                dx = vbRect.Left + vbRect.Width - viewportRect.Right;
+
             // check top boundary
             if (viewportRect.Top < vbRect.Top)
                 dy = Math.Max(0, dy);
             else if (viewportRect.Top + dy < vbRect.Top)
-                    dy = vbRect.Top - viewportRect.Top;
+                dy = vbRect.Top - viewportRect.Top;
 
             // check bottom boundary
             if (viewportRect.Bottom > vbRect.Bottom)
                 dy = Math.Min(0, dy);
             else if (viewportRect.Bottom + dy > vbRect.Top + vbRect.Height)
-                    dy = vbRect.Top + vbRect.Height - viewportRect.Bottom;
+                dy = vbRect.Top + vbRect.Height - viewportRect.Bottom;
 
             // call the main OnDrag handler that is used when dragging the content directly
             OnDrag(new DragDeltaEventArgs(-dx / scale / _viewboxFactor, -dy / scale / _viewboxFactor));
@@ -507,42 +507,42 @@ namespace GraphX.Controls
         private void ResizeDisplayViewport(DragDeltaEventArgs e, ResizeEdge relativeTo)
         {
             return;// NOT IMPLEMENTED
-            // get the existing viewport rect and scale
-/*
-            var viewportRect = _viewFinderDisplay.ViewportRect;
-            var scale = _viewFinderDisplay.Scale;
+                   // get the existing viewport rect and scale
+            /*
+                        var viewportRect = _viewFinderDisplay.ViewportRect;
+                        var scale = _viewFinderDisplay.Scale;
 
-            // ensure that we stay within the bounds of the VisualBrush
-            var x = Math.Max(_resizeViewportBounds.Left, Math.Min(_resizeDraggingPoint.X + e.HorizontalChange, _resizeViewportBounds.Right));
-            var y = Math.Max(_resizeViewportBounds.Top, Math.Min(_resizeDraggingPoint.Y + e.VerticalChange, _resizeViewportBounds.Bottom));
+                        // ensure that we stay within the bounds of the VisualBrush
+                        var x = Math.Max(_resizeViewportBounds.Left, Math.Min(_resizeDraggingPoint.X + e.HorizontalChange, _resizeViewportBounds.Right));
+                        var y = Math.Max(_resizeViewportBounds.Top, Math.Min(_resizeDraggingPoint.Y + e.VerticalChange, _resizeViewportBounds.Bottom));
 
-            // get the selected region in the coordinate space of the content
-            var anchorPoint = new Point(_resizeAnchorPoint.X / scale, _resizeAnchorPoint.Y / scale);
-            var newRegionVector = new Vector((x - _resizeAnchorPoint.X) / scale / _viewboxFactor, (y - _resizeAnchorPoint.Y) / scale / _viewboxFactor);
-            var region2 = new Rect(anchorPoint, newRegionVector);
+                        // get the selected region in the coordinate space of the content
+                        var anchorPoint = new Point(_resizeAnchorPoint.X / scale, _resizeAnchorPoint.Y / scale);
+                        var newRegionVector = new Vector((x - _resizeAnchorPoint.X) / scale / _viewboxFactor, (y - _resizeAnchorPoint.Y) / scale / _viewboxFactor);
+                        var region2 = new Rect(anchorPoint, newRegionVector);
 
-            // now translate the region from the coordinate space of the content 
-            // to the coordinate space of the content presenter
-            var region =
-              new Rect(
-                (Content as UIElement).TranslatePoint(region2.TopLeft, _presenter),
-                (Content as UIElement).TranslatePoint(region2.BottomRight, _presenter));
+                        // now translate the region from the coordinate space of the content 
+                        // to the coordinate space of the content presenter
+                        var region =
+                          new Rect(
+                            (Content as UIElement).TranslatePoint(region2.TopLeft, _presenter),
+                            (Content as UIElement).TranslatePoint(region2.BottomRight, _presenter));
 
-            // calculate actual scale value
-            var aspectX = RenderSize.Width / region.Width;
-            var aspectY = RenderSize.Height / region.Height;
-            scale = aspectX < aspectY ? aspectX : aspectY;
+                        // calculate actual scale value
+                        var aspectX = RenderSize.Width / region.Width;
+                        var aspectY = RenderSize.Height / region.Height;
+                        scale = aspectX < aspectY ? aspectX : aspectY;
 
-            // scale relative to the anchor point
-            ZoomToInternal(region2);
-*/
+                        // scale relative to the anchor point
+                        ZoomToInternal(region2);
+            */
         }
 
         private void OnDrag(DragDeltaEventArgs e)
         {
-           /* Point relativePosition = _relativePosition;
-            double scale = this.Scale;
-            Point newPosition = relativePosition + (this.ContentOffset * scale) + new Vector(e.HorizontalChange * scale, e.VerticalChange * scale);*/
+            /* Point relativePosition = _relativePosition;
+             double scale = this.Scale;
+             Point newPosition = relativePosition + (this.ContentOffset * scale) + new Vector(e.HorizontalChange * scale, e.VerticalChange * scale);*/
             var dd = new Vector(e.HorizontalChange * Zoom * _viewboxFactor, e.VerticalChange * Zoom * _viewboxFactor);
             TranslateX += dd.X;
             TranslateY += dd.Y;
@@ -566,7 +566,7 @@ namespace GraphX.Controls
             if (ContentVisual == null || _viewFinderDisplay == null)
                 return;
 
-            var size = IsContentTrackable ? TrackableContent.ContentSize : new Rect(0,0, ContentVisual.DesiredSize.Width, ContentVisual.DesiredSize.Height);
+            var size = IsContentTrackable ? TrackableContent.ContentSize : new Rect(0, 0, ContentVisual.DesiredSize.Width, ContentVisual.DesiredSize.Height);
             if (double.IsInfinity(size.X) || double.IsInfinity(size.Y)) return;
 
             // calculate the current viewport
@@ -574,9 +574,8 @@ namespace GraphX.Controls
                 new Rect(
                     TranslatePoint(new Point(0, 0), ContentVisual),
                     TranslatePoint(new Point(ActualWidth, ActualHeight), ContentVisual));
-            viewport.X -= size.X; 
+            viewport.X -= size.X;
             viewport.Y -= size.Y;
-
 
             // if the viewport has changed, set the Viewport dependency property
             if (!DoubleHelper.AreVirtuallyEqual(viewport, Viewport))
@@ -607,14 +606,14 @@ namespace GraphX.Controls
             }*/
 
             UpdateViewboxFactor();
-            
+
             // ensure the display panel has a size
             var contentSize = IsContentTrackable ? TrackableContent.ContentSize.Size : ContentVisual.DesiredSize;
             if (contentSize.IsEmpty || double.IsInfinity(contentSize.Width))
                 contentSize = new Size(1, 1);
             var viewFinderSize = _viewFinderDisplay.AvailableSize;
             if (viewFinderSize.IsEmpty || double.IsInfinity(viewFinderSize.Width))
-                viewFinderSize = new Size(1,1);
+                viewFinderSize = new Size(1, 1);
             if (viewFinderSize.Width > 0d && DoubleHelper.AreVirtuallyEqual(viewFinderSize.Height, 0d))
             {
                 // update height to accomodate width, while keeping a ratio equal to the actual content
@@ -647,7 +646,7 @@ namespace GraphX.Controls
             if (ContentVisual == null) return;
             var contentWidth = ActualWidth;
             var trueContentWidth = IsContentTrackable ? TrackableContent.ContentSize.Width : ContentVisual.DesiredSize.Width;
-            if (contentWidth <=1  || trueContentWidth <= 1) _viewboxFactor = 1d;
+            if (contentWidth <= 1 || trueContentWidth <= 1) _viewboxFactor = 1d;
             else _viewboxFactor = contentWidth / trueContentWidth;
         }
         #endregion
@@ -680,7 +679,6 @@ namespace GraphX.Controls
         {
             AreaSelected?.Invoke(this, new AreaSelectedEventArgs(selection));
         }
-
 
         public static readonly DependencyProperty AnimationLengthProperty =
             DependencyProperty.Register(nameof(AnimationLength), typeof(TimeSpan), typeof(ZoomControl),
@@ -788,21 +786,17 @@ namespace GraphX.Controls
             DependencyProperty.Register(nameof(ZoomBoxBackground), typeof(Brush), typeof(ZoomControl),
                                         new PropertyMetadata(null));
 
-
         public static readonly DependencyProperty ZoomBoxBorderBrushProperty =
             DependencyProperty.Register(nameof(ZoomBoxBorderBrush), typeof(Brush), typeof(ZoomControl),
                                         new PropertyMetadata(null));
-
 
         public static readonly DependencyProperty ZoomBoxBorderThicknessProperty =
             DependencyProperty.Register(nameof(ZoomBoxBorderThickness), typeof(Thickness), typeof(ZoomControl),
                                         new PropertyMetadata(null));
 
-
         public static readonly DependencyProperty ZoomBoxOpacityProperty =
             DependencyProperty.Register(nameof(ZoomBoxOpacity), typeof(double), typeof(ZoomControl),
                                         new PropertyMetadata(0.5));
-
 
         public static readonly DependencyProperty ZoomBoxProperty =
             DependencyProperty.Register(nameof(ZoomBox), typeof(Rect), typeof(ZoomControl),
@@ -900,10 +894,10 @@ namespace GraphX.Controls
         /// </summary>
         public double TranslateX
         {
-            get 
+            get
             {
                 var value = (double)GetValue(TranslateXProperty);
-                return double.IsNaN(value) ? 0 : value; 
+                return double.IsNaN(value) ? 0 : value;
             }
             set
             {
@@ -917,7 +911,8 @@ namespace GraphX.Controls
         /// </summary>
         public double TranslateY
         {
-            get {
+            get
+            {
                 var value = (double)GetValue(TranslateYProperty);
                 return double.IsNaN(value) ? 0 : value;
             }
@@ -1013,7 +1008,6 @@ namespace GraphX.Controls
         /// </summary>
         public bool IsContentTrackable => _isga;
 
-
         public ZoomContentPresenter Presenter
         {
             get { return _presenter; }
@@ -1081,7 +1075,7 @@ namespace GraphX.Controls
         public ZoomControl()
         {
             if (DesignerProperties.GetIsInDesignMode(this))
-            {           
+            {
             }
             else
             {
@@ -1152,7 +1146,7 @@ namespace GraphX.Controls
                     newc.ContentSizeChanged += Content_ContentSizeChanged;
                 }
                 else _isga = false;
-                if(Template != null)
+                if (Template != null)
                     OnApplyTemplate();
                 UpdateViewFinderDisplayContentBounds();
                 UpdateViewport();
@@ -1191,7 +1185,7 @@ namespace GraphX.Controls
 
             e.Handled = true;
             MouseWheelAction(e);
-			_clickTrack = false;
+            _clickTrack = false;
         }
 
         private void MouseWheelAction(MouseWheelEventArgs e)
@@ -1217,14 +1211,14 @@ namespace GraphX.Controls
 
         private void ZoomControl_MouseUp(object sender, MouseButtonEventArgs e)
         {
-			if (_clickTrack)
-			{
-				RaiseEvent(new RoutedEventArgs(ClickEvent, this));
-				_clickTrack = false;
-				e.Handled = true;
-			}
+            if (_clickTrack)
+            {
+                RaiseEvent(new RoutedEventArgs(ClickEvent, this));
+                _clickTrack = false;
+                e.Handled = true;
+            }
 
-			switch (ModifierMode)
+            switch (ModifierMode)
             {
                 case ZoomViewModifierMode.None:
                     return;
@@ -1263,15 +1257,15 @@ namespace GraphX.Controls
 
         private void ZoomControl_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-			if (_clickTrack)
-			{
-				var curPoint = Mouse.GetPosition(this);
+            if (_clickTrack)
+            {
+                var curPoint = Mouse.GetPosition(this);
 
-				if (curPoint != _mouseDownPos)
-					_clickTrack = false;
-			}
+                if (curPoint != _mouseDownPos)
+                    _clickTrack = false;
+            }
 
-			switch (ModifierMode)
+            switch (ModifierMode)
             {
                 case ZoomViewModifierMode.None:
                     return;
@@ -1306,8 +1300,8 @@ namespace GraphX.Controls
             e.Handled = false;
         }
 
-		private bool _clickTrack;
-		private bool _startedAsAreaSelection;
+        private bool _clickTrack;
+        private bool _startedAsAreaSelection;
         private void OnMouseDown(MouseButtonEventArgs e, bool isPreview)
         {
             if (ModifierMode != ZoomViewModifierMode.None)
@@ -1347,10 +1341,10 @@ namespace GraphX.Controls
                     return;
             }
 
-			_clickTrack = true;
-			_mouseDownPos = e.GetPosition(this);
+            _clickTrack = true;
+            _mouseDownPos = e.GetPosition(this);
 
-			if (ModifierMode == ZoomViewModifierMode.None)
+            if (ModifierMode == ZoomViewModifierMode.None)
                 return;
 
             _startTranslate = new Vector(TranslateX, TranslateY);
@@ -1358,18 +1352,18 @@ namespace GraphX.Controls
             PreviewMouseMove += ZoomControl_PreviewMouseMove;
         }
 
-		public static readonly RoutedEvent ClickEvent = EventManager.RegisterRoutedEvent(nameof(Click), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(ZoomControl));
-		public event RoutedEventHandler Click
-		{
-			add { AddHandler(ClickEvent, value); }
-			remove { RemoveHandler(ClickEvent, value); }
-		}
+        public static readonly RoutedEvent ClickEvent = EventManager.RegisterRoutedEvent(nameof(Click), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(ZoomControl));
+        public event RoutedEventHandler Click
+        {
+            add { AddHandler(ClickEvent, value); }
+            remove { RemoveHandler(ClickEvent, value); }
+        }
 
-		#endregion
+        #endregion
 
-		#region Animation
+        #region Animation
 
-		public event EventHandler ZoomAnimationCompleted;
+        public event EventHandler ZoomAnimationCompleted;
 
         private void OnZoomAnimationCompleted()
         {
@@ -1428,7 +1422,7 @@ namespace GraphX.Controls
             _zoomAnimCount--;
             if (_zoomAnimCount > 0)
                 return;
-            var zoom = Zoom;          
+            var zoom = Zoom;
             BeginAnimation(ZoomProperty, null);
             SetValue(ZoomProperty, zoom);
             _isZooming = false;
@@ -1453,7 +1447,7 @@ namespace GraphX.Controls
               new Rect(
                 ContentVisual.TranslatePoint(rectangle.TopLeft, _presenter),
                 ContentVisual.TranslatePoint(rectangle.BottomRight, _presenter)) : rectangle;
-            
+
             // calculate actual zoom, which must fit the entire selection 
             // while maintaining a 1:1 ratio
             var aspectX = ActualWidth / region.Width;
@@ -1492,7 +1486,7 @@ namespace GraphX.Controls
                 return;
 
             var initialTranslate = GetTrackableTranslate();
-            DoZoomAnimation(Zoom, initialTranslate.X*Zoom, initialTranslate.Y*Zoom);
+            DoZoomAnimation(Zoom, initialTranslate.X * Zoom, initialTranslate.Y * Zoom);
         }
 
         /// <summary>
@@ -1500,7 +1494,7 @@ namespace GraphX.Controls
         /// </summary>
         public void ZoomToFill()
         {
-            if(Mode == ZoomControlModes.Fill)
+            if (Mode == ZoomControlModes.Fill)
                 DoZoomToFill();
             else Mode = ZoomControlModes.Fill;
         }
@@ -1519,7 +1513,7 @@ namespace GraphX.Controls
         private Vector GetTrackableTranslate()
         {
             if (!IsContentTrackable) return new Vector();
-            return DesignerProperties.GetIsInDesignMode(this) ? GetInitialTranslate(200,100) : GetInitialTranslate(TrackableContent.ContentSize.Width, TrackableContent.ContentSize.Height, TrackableContent.ContentSize.X, TrackableContent.ContentSize.Y);
+            return DesignerProperties.GetIsInDesignMode(this) ? GetInitialTranslate(200, 100) : GetInitialTranslate(TrackableContent.ContentSize.Width, TrackableContent.ContentSize.Height, TrackableContent.ContentSize.X, TrackableContent.ContentSize.Y);
         }
 
         private void DoZoomToOriginal()
@@ -1550,7 +1544,7 @@ namespace GraphX.Controls
             var c = IsContentTrackable ? TrackableContent.ContentSize.Size : ContentVisual.DesiredSize;
             if (c.Width == 0 || double.IsNaN(c.Width) || double.IsInfinity(c.Width)) return;
 
-            var deltaZoom = Math.Min(MaxZoom,Math.Min( ActualWidth / (c.Width), ActualHeight / (c.Height)));
+            var deltaZoom = Math.Min(MaxZoom, Math.Min(ActualWidth / (c.Width), ActualHeight / (c.Height)));
             var initialTranslate = IsContentTrackable ? GetTrackableTranslate() : GetInitialTranslate(c.Width, c.Height);
             DoZoomAnimation(deltaZoom, initialTranslate.X * deltaZoom, initialTranslate.Y * deltaZoom);
         }
@@ -1569,7 +1563,6 @@ namespace GraphX.Controls
             var targetPoint = (v - startTranslate) / startZoom;
             var zoomedTargetPointPos = targetPoint * currentZoom + startTranslate;
             var endTranslate = vTarget - zoomedTargetPointPos;
-
 
             if (setDelta)
             {

@@ -7,6 +7,7 @@ using GraphX.Common.Exceptions;
 using GraphX.Common.Interfaces;
 using System.Windows.Input;
 using GraphX.Common;
+
 #if WPF
 
 using System.Windows.Controls;
@@ -163,23 +164,23 @@ namespace GraphX.Controls
                                                                                              typeof(EdgeControlBase),
                                                                                              new PropertyMetadata(null));
 
-       /* private double _labelAngle;
+        /* private double _labelAngle;
 
-        /// <summary>
-        /// Gets or sets vertex label angle
-        /// </summary>
-        public double LabelAngle
-        {
-            get
-            {
-                return EdgeLabelControl?.Angle ?? _labelAngle;
-            }
-            set
-            {
-                _labelAngle = value;
-                if (EdgeLabelControl != null) EdgeLabelControl.Angle = _labelAngle;
-            }
-        }*/
+         /// <summary>
+         /// Gets or sets vertex label angle
+         /// </summary>
+         public double LabelAngle
+         {
+             get
+             {
+                 return EdgeLabelControl?.Angle ?? _labelAngle;
+             }
+             set
+             {
+                 _labelAngle = value;
+                 if (EdgeLabelControl != null) EdgeLabelControl.Angle = _labelAngle;
+             }
+         }*/
 
         #region DashStyle
 
@@ -241,24 +242,24 @@ namespace GraphX.Controls
         protected EdgeControlBase()
         {
             _updateLabelPosition = true;
-			Loaded += EdgeControlBase_Loaded;
+            Loaded += EdgeControlBase_Loaded;
         }
 
-		private bool _isInDesignMode = false;
+        private bool _isInDesignMode = false;
 
-		private void EdgeControlBase_Loaded(object sender, RoutedEventArgs e)
-		{
-			Loaded -= EdgeControlBase_Loaded;
-			_isInDesignMode = CustomHelper.IsInDesignMode(this);
-		}
+        private void EdgeControlBase_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= EdgeControlBase_Loaded;
+            _isInDesignMode = CustomHelper.IsInDesignMode(this);
+        }
 
-		private bool _updateLabelPosition;
+        private bool _updateLabelPosition;
 
         /// <summary>
         /// Gets or sets if label position should be updated on edge update
         /// </summary>
-        public bool UpdateLabelPosition { get { return _updateLabelPosition; } set { _updateLabelPosition = true; } }
-
+        public bool UpdateLabelPosition
+        { get { return _updateLabelPosition; } set { _updateLabelPosition = true; } }
 
         /// <summary>
         /// Gets or set if hidden edges should be updated when connected vertices positions are changed. Default value is True.
@@ -284,7 +285,8 @@ namespace GraphX.Controls
         /// <summary>
         /// Show arrows on the edge ends. Default value is true.
         /// </summary>
-        public bool ShowArrows { get { return (bool)GetValue(ShowArrowsProperty); } set { SetValue(ShowArrowsProperty, value); } }
+        public bool ShowArrows
+        { get { return (bool)GetValue(ShowArrowsProperty); } set { SetValue(ShowArrowsProperty, value); } }
 
         /// <summary>
         ///  Gets or Sets that user controls the path geometry object or it is generated automatically
@@ -306,7 +308,8 @@ namespace GraphX.Controls
         /// <summary>
         /// Templated label control to display labels
         /// </summary>
-        protected internal IList<IEdgeLabelControl> EdgeLabelControls { get { return _edgeLabelControls; } set { _edgeLabelControls = value; OnEdgeLabelUpdated(); } }
+        protected internal IList<IEdgeLabelControl> EdgeLabelControls
+        { get { return _edgeLabelControls; } set { _edgeLabelControls = value; OnEdgeLabelUpdated(); } }
 
         protected IEdgePointer EdgePointerForSource;
         protected IEdgePointer EdgePointerForTarget;
@@ -314,12 +317,14 @@ namespace GraphX.Controls
         /// <summary>
         /// Returns edge pointer for source if any
         /// </summary>
-        public IEdgePointer GetEdgePointerForSource() { return EdgePointerForSource; }
+        public IEdgePointer GetEdgePointerForSource()
+        { return EdgePointerForSource; }
 
         /// <summary>
         /// Returns edge pointer for target if any
         /// </summary>
-        public IEdgePointer GetEdgePointerForTarget() { return EdgePointerForTarget; }
+        public IEdgePointer GetEdgePointerForTarget()
+        { return EdgePointerForTarget; }
 
         public EdgeEventOptions EventOptions { get; protected set; }
 
@@ -357,7 +362,7 @@ namespace GraphX.Controls
         public void AttachLabel(IEdgeLabelControl ctrl)
         {
             EdgeLabelControls.Add(ctrl);
-            if(!RootArea.Children.Contains((UIElement)ctrl))
+            if (!RootArea.Children.Contains((UIElement)ctrl))
                 RootArea.Children.Add((UIElement)ctrl);
             ctrl.Show();
             var r = ctrl.GetSize();
@@ -372,7 +377,7 @@ namespace GraphX.Controls
         /// Internal method. Detaches label from control.
         /// </summary>
         public void DetachLabels(IEdgeLabelControl ctrl = null)
-        {            
+        {
             EdgeLabelControls.Where(l => l is IAttachableControl<EdgeControl>).Cast<IAttachableControl<EdgeControl>>().ForEach(label =>
             {
                 label.Detach();
@@ -386,12 +391,12 @@ namespace GraphX.Controls
         /// </summary>
         public void UpdateLabel()
         {
-            _edgeLabelControls.Where(l=> l.ShowLabel).ForEach(l =>
-            {
-                l.Show();
-                l.UpdateLayout();
-                l.UpdatePosition();
-            });
+            _edgeLabelControls.Where(l => l.ShowLabel).ForEach(l =>
+             {
+                 l.Show();
+                 l.UpdateLayout();
+                 l.UpdatePosition();
+             });
         }
 
         #endregion Properties & Fields
@@ -467,7 +472,7 @@ namespace GraphX.Controls
 
         internal virtual void InvalidateChildren()
         {
-            EdgeLabelControls.ForEach(l=>l.UpdateLayout());
+            EdgeLabelControls.ForEach(l => l.UpdateLayout());
             if (LinePathObject != null)
             {
                 var pos = this.Source.GetPosition();
@@ -500,7 +505,7 @@ namespace GraphX.Controls
             LinePathObject.Data = Linegeometry;
 
             //EdgeLabelControl = EdgeLabelControl ?? GetTemplatePart("PART_edgeLabel") as IEdgeLabelControl;
-            if(GetTemplatePart("PART_edgeLabel") != null)
+            if (GetTemplatePart("PART_edgeLabel") != null)
                 throw new GX_ObsoleteException("PART_edgeLabel is obsolete. Please use attachable labels mechanics!");
 
             EdgePointerForSource = GetTemplatePart("PART_EdgePointerForSource") as IEdgePointer;
@@ -568,7 +573,8 @@ namespace GraphX.Controls
 
                 // Note: Do not override a possible WPF Binding or Converter for the Visibility property.
                 if (EdgePointerForTarget?.Visibility == Visibility.Visible)
-                    EdgePointerForTarget?.Show();            }
+                    EdgePointerForTarget?.Show();
+            }
             else
             {
                 EdgePointerForSource?.Hide();
@@ -581,7 +587,7 @@ namespace GraphX.Controls
         }
 
         internal int ParallelEdgeOffset;
-		//internal int TargetOffset;
+        //internal int TargetOffset;
 
         /// <summary>
         /// Gets the offset point for edge parallelization
@@ -601,8 +607,8 @@ namespace GraphX.Controls
 
         /// <summary>
         /// Internal value to store last calculated Source vertex connection point
-		    /// </summary>
-		    protected internal Point? SourceConnectionPoint;
+        /// </summary>
+        protected internal Point? SourceConnectionPoint;
 
         /// <summary>
         /// Internal value to store last calculated Target vertex connection point
@@ -905,6 +911,7 @@ namespace GraphX.Controls
             if ((Visibility != Visibility.Visible && !IsHiddenEdgesUpdated) && this.Source == null || this.Target == null || ManualDrawing || !IsTemplateLoaded) return;
 
             #region Get the inputs
+
             // Get the TopLeft position of the Source Vertex.
             var sourceTopLeft = new Point(
                 (useCurrentCoords ? GraphAreaBase.GetX(Source) : GraphAreaBase.GetFinalX(Source)),
@@ -941,7 +948,6 @@ namespace GraphX.Controls
                 targetTopLeft.X + targetSize.Width * .5,
                 targetTopLeft.Y + targetSize.Height * .5);
 
-
             var routedEdge = Edge as IRoutingInfo;
             if (routedEdge == null)
                 throw new GX_InvalidDataException("Edge must implement IRoutingInfo interface");
@@ -967,6 +973,7 @@ namespace GraphX.Controls
             var gEdge = Edge as IGraphXCommonEdge;
 
             #region Helper lambda expressions
+
             Func<IVertexConnectionPoint> getSourceCpOrThrow = () =>
             {
                 var cp = Source.GetConnectionPointById(gEdge.SourceConnectionPointId.Value, true);
@@ -993,7 +1000,8 @@ namespace GraphX.Controls
                 return calculatedCp;
             };
             Func<bool> needParallelCalc = () => RootArea != null && !hasRouteInfo && RootArea.EnableParallelEdges && IsParallel;
-            #endregion
+
+            #endregion Helper lambda expressions
 
             //calculate edge source (p1) and target (p2) endpoints based on different settings
             if (gEdge?.SourceConnectionPointId != null && gEdge?.TargetConnectionPointId != null)
@@ -1157,7 +1165,7 @@ namespace GraphX.Controls
                 EdgeLabelControls.Where(l => l.ShowLabel).ForEach(l => l.UpdatePosition());
         }
 
-		private Point UpdateSourceEpData(Point from, Point to, bool allowUnsuppress = true)
+        private Point UpdateSourceEpData(Point from, Point to, bool allowUnsuppress = true)
         {
             var dir = MathHelper.GetDirection(from, to);
             if (from == to)
@@ -1201,13 +1209,13 @@ namespace GraphX.Controls
 
         public virtual IList<SysRect> GetLabelSizes()
         {
-            return EdgeLabelControls.Select(l=> l.GetSize()).ToList();
+            return EdgeLabelControls.Select(l => l.GetSize()).ToList();
         }
 
-      /*  public void SetCustomLabelSize(SysRect rect)
-        {
-            EdgeLabelControl.SetSize(rect);
-        }*/
+        /*  public void SetCustomLabelSize(SysRect rect)
+          {
+              EdgeLabelControl.SetSize(rect);
+          }*/
 
         /// <summary>
         /// Returns all edge controls attached to this entity

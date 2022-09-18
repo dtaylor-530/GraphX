@@ -11,7 +11,7 @@ using QuikGraph;
 
 namespace GraphX.Logic.Models
 {
-    public sealed class AlgorithmFactory<TVertex, TEdge, TGraph> : IAlgorithmFactory<TVertex, TEdge, TGraph>
+    public class AlgorithmFactory<TVertex, TEdge, TGraph> : IAlgorithmFactory<TVertex, TEdge, TGraph>
         where TVertex : class, IGraphXVertex
         where TEdge : class, IGraphXEdge<TVertex>
         where TGraph : class, IMutableBidirectionalGraph<TVertex, TEdge>, new()
@@ -25,7 +25,7 @@ namespace GraphX.Logic.Models
         /// <param name="positions">Optional vertex positions</param>
         /// <param name="sizes">Optional vertex sizes</param>
         /// <param name="parameters">Optional algorithm parameters</param>
-        public ILayoutAlgorithm<TVertex, TEdge, TGraph> CreateLayoutAlgorithm(LayoutAlgorithmTypeEnum newAlgorithmType, TGraph iGraph, IDictionary<TVertex, Point> positions = null, IDictionary<TVertex, Size> sizes = null, ILayoutParameters parameters = null)
+        public virtual ILayoutAlgorithm<TVertex, TEdge, TGraph> CreateLayoutAlgorithm(LayoutAlgorithmTypeEnum newAlgorithmType, TGraph iGraph, IDictionary<TVertex, Point> positions = null, IDictionary<TVertex, Size> sizes = null, ILayoutParameters parameters = null)
         {
             if (iGraph == null) return null;
             if (parameters == null) parameters = CreateLayoutParameters(newAlgorithmType);
@@ -74,7 +74,7 @@ namespace GraphX.Logic.Models
         /// Creates parameters data for layout algorithm
         /// </summary>
         /// <param name="algorithmType">Layout algorithm type</param>
-        public ILayoutParameters CreateLayoutParameters(LayoutAlgorithmTypeEnum algorithmType)
+        public virtual ILayoutParameters CreateLayoutParameters(LayoutAlgorithmTypeEnum algorithmType)
         {
             switch (algorithmType)
             {
@@ -111,7 +111,7 @@ namespace GraphX.Logic.Models
         /// Returns True if specified layout algorithm needs vertex size data for its calculations
         /// </summary>
         /// <param name="algorithmType">Layout algorithm type</param>
-        public bool NeedSizes(LayoutAlgorithmTypeEnum algorithmType)
+        public virtual bool NeedSizes(LayoutAlgorithmTypeEnum algorithmType)
         {
             switch (algorithmType)
             {
@@ -140,7 +140,7 @@ namespace GraphX.Logic.Models
         /// Returns True if specified layout algorithm ever needs overlap removal pass
         /// </summary>
         /// <param name="algorithmType">Layout algorithm type</param>
-        public bool NeedOverlapRemoval(LayoutAlgorithmTypeEnum algorithmType)
+        public virtual bool NeedOverlapRemoval(LayoutAlgorithmTypeEnum algorithmType)
         {
             return (algorithmType != LayoutAlgorithmTypeEnum.Sugiyama
                 && algorithmType != LayoutAlgorithmTypeEnum.EfficientSugiyama

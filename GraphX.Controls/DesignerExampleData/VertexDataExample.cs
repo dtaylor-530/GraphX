@@ -1,7 +1,7 @@
-﻿using System;
+﻿using GraphX.Common.Models;
+using System;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using GraphX.Common.Models;
 
 namespace GraphX.Controls.DesignerExampleData
 {
@@ -9,12 +9,13 @@ namespace GraphX.Controls.DesignerExampleData
     {
         public VertexDataExample(int id, string name)
         {
-            ID = id; Name = name;
+            ID = id;
+            Name = name;
             DataImage = new BitmapImage(new Uri(@"pack://application:,,,/GraphX.Controls;component/Images/help_black.png", UriKind.Absolute)) { CacheOption = BitmapCacheOption.OnLoad };
         }
 
         public string Name { get; set; }
-        public ImageSource DataImage{ get; set; }
+        public ImageSource DataImage { get; set; }
 
         public override string ToString()
         {

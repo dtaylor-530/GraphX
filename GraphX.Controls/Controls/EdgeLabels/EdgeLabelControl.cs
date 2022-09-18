@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using GraphX.Common.Interfaces;
+
 #if WPF
+
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,6 +12,7 @@ using System.ComponentModel;
 using SysRect = System.Windows.Rect;
 using SysSize = System.Windows.Size;
 using RoutedOrCommonArgs = System.EventArgs;
+
 using DefaultEventArgs = System.EventArgs;
 #elif METRO
 using Windows.ApplicationModel;
@@ -31,24 +34,39 @@ namespace GraphX.Controls
     //hack to fix weird METRO error when it can't find this class
     [Bindable]
 #endif
+
     public abstract class EdgeLabelControl : ContentControl, IEdgeLabelControl
     {
-        
+        private static readonly DependencyPropertyKey FlipAxisPropertyKey
+      = DependencyProperty.RegisterReadOnly(
+          nameof(FlipAxis),
+          typeof(bool), typeof(EdgeLabelControl),
+          new FrameworkPropertyMetadata(default(bool),
+              FrameworkPropertyMetadataOptions.None));
+
+        public static readonly DependencyProperty FlipAxisProperty = FlipAxisPropertyKey.DependencyProperty;
+
+        public bool FlipAxis
+        {
+            get { return (bool)GetValue(FlipAxisProperty); }
+            protected set { SetValue(FlipAxisPropertyKey, value); }
+        }
+
         public static readonly DependencyProperty AlignToEdgeProperty = DependencyProperty.Register("AlignToEdge",
             typeof(bool),
             typeof(EdgeLabelControl),
             new PropertyMetadata(false, (o, e) =>
             {
-                var ctrl = (EdgeLabelControl) o;
+                var ctrl = (EdgeLabelControl)o;
                 if ((bool)e.NewValue == false) ctrl.Angle = 0;
                 ctrl.UpdatePosition();
-            } ));
+            }));
 
         /// <summary>
         /// Gets or sets if lables should be aligned to edges and be displayed under the same angle
         /// </summary>
-        public bool AlignToEdge { get { return (bool)GetValue(AlignToEdgeProperty); } set { SetValue(AlignToEdgeProperty, value); }}
-
+        public bool AlignToEdge
+        { get { return (bool)GetValue(AlignToEdgeProperty); } set { SetValue(AlignToEdgeProperty, value); } }
 
         public static readonly DependencyProperty LabelVerticalOffsetProperty = DependencyProperty.Register("LabelVerticalOffset",
             typeof(double),
@@ -58,7 +76,8 @@ namespace GraphX.Controls
         /// <summary>
         /// Offset for label Y axis to display it above/below the edge
         /// </summary>
-        public double LabelVerticalOffset { get { return (double)GetValue(LabelVerticalOffsetProperty); } set { SetValue(LabelVerticalOffsetProperty, value); } }
+        public double LabelVerticalOffset
+        { get { return (double)GetValue(LabelVerticalOffsetProperty); } set { SetValue(LabelVerticalOffsetProperty, value); } }
 
         public static readonly DependencyProperty LabelHorizontalOffsetProperty = DependencyProperty.Register("LabelHorizontalOffset",
             typeof(double),
@@ -68,7 +87,8 @@ namespace GraphX.Controls
         /// <summary>
         /// Offset for label X axis to display it along the edge
         /// </summary>
-        public double LabelHorizontalOffset { get { return (double)GetValue(LabelHorizontalOffsetProperty); } set { SetValue(LabelHorizontalOffsetProperty, value); } }
+        public double LabelHorizontalOffset
+        { get { return (double)GetValue(LabelHorizontalOffsetProperty); } set { SetValue(LabelHorizontalOffsetProperty, value); } }
 
         public static readonly DependencyProperty ShowLabelProperty = DependencyProperty.Register("ShowLabel",
             typeof(bool),
@@ -83,12 +103,14 @@ namespace GraphX.Controls
         /// <summary>
         /// Show edge label.Default value is False.
         /// </summary>
-        public bool ShowLabel { get { return (bool)GetValue(ShowLabelProperty); } set { SetValue(ShowLabelProperty, value); } }
+        public bool ShowLabel
+        { get { return (bool)GetValue(ShowLabelProperty); } set { SetValue(ShowLabelProperty, value); } }
 
         public static readonly DependencyProperty DisplayForSelfLoopedEdgesProperty = DependencyProperty.Register("DisplayForSelfLoopedEdges",
                                                                        typeof(bool),
                                                                        typeof(EdgeLabelControl),
                                                                        new PropertyMetadata(false));
+
         /// <summary>
         /// Gets or sets if label should be visible for self looped edge
         /// </summary>
@@ -108,6 +130,7 @@ namespace GraphX.Controls
                                                                typeof(bool),
                                                                typeof(EdgeLabelControl),
                                                                new PropertyMetadata(true));
+
         /// <summary>
         /// Gets or sets if label should flip on rotation when axis changes
         /// </summary>
@@ -123,25 +146,24 @@ namespace GraphX.Controls
             }
         }
 
-
-
         public static readonly DependencyProperty AngleProperty = DependencyProperty.Register(nameof(Angle),
                                                                                        typeof(double),
                                                                                        typeof(EdgeLabelControl),
                                                                                        new PropertyMetadata(0.0, AngleChanged));
+
         private static void AngleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var ctrl = d as UIElement;
             if (ctrl == null) return;
             var tg = ctrl.RenderTransform as TransformGroup;
-            if (tg == null) 
-                ctrl.RenderTransform = new RotateTransform {Angle = (double) e.NewValue, CenterX = .5, CenterY = .5};
+            if (tg == null)
+                ctrl.RenderTransform = new RotateTransform { Angle = (double)e.NewValue, CenterX = .5, CenterY = .5 };
             else
             {
                 var rt = (RotateTransform)tg.Children.FirstOrDefault(a => a is RotateTransform);
                 if (rt == null)
-                    tg.Children.Add(new RotateTransform {Angle = (double) e.NewValue, CenterX = .5, CenterY = .5});
-                else rt.Angle = (double) e.NewValue;
+                    tg.Children.Add(new RotateTransform { Angle = (double)e.NewValue, CenterX = .5, CenterY = .5 });
+                else rt.Angle = (double)e.NewValue;
             }
         }
 
@@ -191,8 +213,6 @@ namespace GraphX.Controls
             SetValue(UIElement.VisibilityProperty, Visibility.Collapsed);
 #endif
         }
-
-
 
         private static double GetLabelDistance(double edgeLength)
         {
@@ -277,7 +297,7 @@ namespace GraphX.Controls
             // The label control should be laid out on a rectangle, in the middle of the edge
             var angleBetweenPoints = MathHelper.GetAngleBetweenPoints(p1, p2);
             var desiredSize = DesiredSize;
-            bool flipAxis = p1.X > p2.X; // Flip axis if source is "after" target
+            FlipAxis = p1.X > p2.X; // Flip axis if source is "after" target
 
             ApplyLabelHorizontalOffset(edgeLength, LabelHorizontalOffset);
 
@@ -287,7 +307,7 @@ namespace GraphX.Controls
             {
                 // If we're aligning labels to the edges make sure add the label vertical offset
                 var yEdgeOffset = LabelVerticalOffset;
-                if (FlipOnRotation && flipAxis && !EdgeControl.IsParallel) // If we've flipped axis, move the offset to the other side of the edge
+                if (FlipOnRotation && FlipAxis && !EdgeControl.IsParallel) // If we've flipped axis, move the offset to the other side of the edge
                     yEdgeOffset = -yEdgeOffset;
 
                 // Adjust offset for rotation. Remember, the offset is perpendicular from the edge tangent.
@@ -297,18 +317,18 @@ namespace GraphX.Controls
 
                 // Angle is in degrees
                 Angle = -angleBetweenPoints * 180 / Math.PI;
-                if (flipAxis)
+                if (FlipAxis)
                     Angle += 180; // Reorient the label so that it's always "pointing north"
             }
 
             UpdateFinalPosition(centerPoint, desiredSize);
 
-            #if METRO
+#if METRO
             GraphAreaBase.SetX(this, LastKnownRectSize.X, true);
             GraphAreaBase.SetY(this, LastKnownRectSize.Y, true);
-            #else
+#else
             Arrange(LastKnownRectSize);
-            #endif
+#endif
         }
 
         protected virtual double ApplyLabelHorizontalOffset(double edgeLength, double offset)
@@ -371,13 +391,13 @@ namespace GraphX.Controls
 #endif
         }
 
-        void EdgeLabelControl_Loaded(object sender, RoutedOrCommonArgs e)
+        private void EdgeLabelControl_Loaded(object sender, RoutedOrCommonArgs e)
         {
             if (EdgeControl.IsSelfLooped && !DisplayForSelfLoopedEdges) Hide();
             else Show();
         }
 
-        void EdgeLabelControl_LayoutUpdated(object sender, DefaultEventArgs e)
+        private void EdgeLabelControl_LayoutUpdated(object sender, DefaultEventArgs e)
         {
             if (EdgeControl == null || !ShowLabel) return;
             if (LastKnownRectSize == SysRect.Empty || double.IsNaN(LastKnownRectSize.Width) || LastKnownRectSize.Width == 0)
@@ -407,14 +427,14 @@ namespace GraphX.Controls
             UpdateLabelOnVisibilityChange = true;
         }
 
-        void EdgeLabelControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void EdgeLabelControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (!UpdateLabelOnSizeChange) return;
             UpdatePosition();
-           // Debug.WriteLine(EdgeControl.Edge.ToString());
+            // Debug.WriteLine(EdgeControl.Edge.ToString());
         }
 
-        DependencyObject GetParent()
+        private DependencyObject GetParent()
         {
 #if WPF
             return VisualParent;

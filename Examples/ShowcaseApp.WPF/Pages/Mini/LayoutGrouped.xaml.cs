@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using GraphX;
 using GraphX.Common;
 using GraphX.Common.Enums;
+using GraphX.Common.Interfaces;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
 using GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped;
 using QuikGraph;
@@ -29,74 +32,121 @@ namespace ShowcaseApp.WPF.Pages.Mini
 
         void ControlLoaded(object sender, RoutedEventArgs e)
         {
-            GenerateGraph();
-        }
-
-        private void GenerateGraph()
-        {
-            graphArea.ClearLayout();
-            var logicCore = new LogicCoreExample()
-            {
-                Graph = ShowcaseHelper.GenerateDataGraph(10)
-            };
-            logicCore.Graph.Vertices.Take(5).ForEach(a => a.GroupId = 1);
-            logicCore.Graph.Vertices.Where(a => a.GroupId == 0).ForEach(a => a.GroupId = 2);
-            logicCore.DefaultOverlapRemovalAlgorithm = OverlapRemovalAlgorithmTypeEnum.None;
-            //generate group params
-            var prms = new List<AlgorithmGroupParameters<DataVertex, DataEdge>>
-            {
-                new AlgorithmGroupParameters<DataVertex, DataEdge>
-                {
-                    GroupId = 1,
-                    LayoutAlgorithm =
-                        new RandomLayoutAlgorithm<DataVertex, DataEdge, GraphExample>(
-                            new RandomLayoutAlgorithmParams {Bounds = new Rect(10, 10, 490, 490)}),
-                    
-                },
-                new AlgorithmGroupParameters<DataVertex, DataEdge>
-                {
-                    GroupId = 2,
-                    LayoutAlgorithm =
-                        new RandomLayoutAlgorithm<DataVertex, DataEdge, GraphExample>(
-                            new RandomLayoutAlgorithmParams {Bounds = new Rect(10, 10, 490, 490)}),
-                }
-            };
-
-            var gParams = new GroupingLayoutAlgorithmParameters<DataVertex, DataEdge>(prms, true)
-            {
-                OverlapRemovalAlgorithm = logicCore.AlgorithmFactory.CreateFSAA<object>(100, 100),
-                ArrangeGroups = cbArrangeGroups.IsChecked ?? false,
-            };
-            //generate grouping algo
-            logicCore.ExternalLayoutAlgorithm =
-                new GroupingLayoutAlgorithm<DataVertex, DataEdge, BidirectionalGraph<DataVertex, DataEdge>>(logicCore.Graph, null, gParams);
-
-            graphArea.LogicCore = logicCore;
-            //generate graphs
-            graphArea.GenerateGraph();
-
-            //generate group visuals
-            foreach (var item in prms)
-            {
-                if (!item.ZoneRectangle.HasValue) continue;
-                var rect = GenerateGroupBorder(item);
-                graphArea.InsertCustomChildControl(0, rect);
-                GraphAreaBase.SetX(rect, item.ZoneRectangle.Value.X - _groupInnerPadding *.5);
-                GraphAreaBase.SetY(rect, item.ZoneRectangle.Value.Y - _groupInnerPadding *.5 - _headerHeight);
-            }
+            var graph = ShowcaseHelper.GenerateDataGraph(10);
+            Grouper.AssignGroupIds(graph.Vertices);
+            GenerateGraph(graph);
             zoomControl.ZoomToFill();
         }
 
-        private double _headerHeight = 30;
-        private double _groupInnerPadding = 20;
-
-        private Border GenerateGroupBorder(AlgorithmGroupParameters<DataVertex, DataEdge> prms)
+        private void GenerateGraph(GraphExample graph)
         {
-            return new Border
+            graphArea.ClearLayout();
+            //generate group params
+            var prms = Grouper.CreateGroupParameters().ToList();
+
+            graphArea.LogicCore = GetLogicCore(prms, graph, cbArrangeGroups.IsChecked ?? false); ;
+            //generate graphs
+            graphArea.GenerateGraph();
+
+            Random rand = new Random();
+            foreach (var (rect, size) in
+                prms
+                .Where(a => a.ZoneRectangle.HasValue)
+                .Select(a => GenerateGroupBorder(a.ZoneRectangle.Value, string.Format("Group {0}", a.GroupId), PickRandomBrush(rand))))
+
             {
-                Width = prms.ZoneRectangle.Value.Width + _groupInnerPadding,
-                Height = prms.ZoneRectangle.Value.Height + _groupInnerPadding + _headerHeight,
-                Background = prms.GroupId == 1 ? Brushes.LightSkyBlue : Brushes.Gray,
+
+                graphArea.InsertCustomChildControl(0, rect);
+                GraphAreaBase.SetX(rect, size.X);
+                GraphAreaBase.SetY(rect, size.Y);
+            }
+
+   
+        }
+
+
+
+        private static Brush PickRandomBrush(Random rnd)
+        {
+            PropertyInfo[] properties = typeof(Brushes).GetProperties();
+            return (Brush)properties[rnd.Next(properties.Length)].GetValue(null, null);
+        }
+
+        private static LogicCoreExample GetLogicCore(List<AlgorithmGroupParameters<DataVertex, DataEdge>> prms, GraphExample graph, bool arrangeGroups)
+        {
+            var logicCore = new LogicCoreExample()
+            {
+                Graph = graph,
+                DefaultOverlapRemovalAlgorithm = OverlapRemovalAlgorithmTypeEnum.None,
+            };
+
+            //generate grouping algo
+            logicCore.ExternalLayoutAlgorithm =
+                new GroupingLayoutAlgorithm<DataVertex, DataEdge, BidirectionalGraph<DataVertex, DataEdge>>(
+                    graph,
+                null,
+                CreateLayoutAlgorithmParameters(prms, logicCore.AlgorithmFactory, arrangeGroups));
+
+            return logicCore;
+        }
+
+        private static GroupingLayoutAlgorithmParameters<DataVertex, DataEdge> CreateLayoutAlgorithmParameters(
+            List<AlgorithmGroupParameters<DataVertex, DataEdge>> prms,
+            IAlgorithmFactory<DataVertex, DataEdge, BidirectionalGraph<DataVertex, DataEdge>> factory,
+            bool arrangeGroups)
+        {
+            return new GroupingLayoutAlgorithmParameters<DataVertex, DataEdge>(prms, true)
+            {
+                OverlapRemovalAlgorithm = factory.CreateFSAA<object>(100, 100),
+                ArrangeGroups = arrangeGroups,
+            };
+        }
+
+
+        static class Grouper
+        {
+            static int g = 0;
+
+            public static void AssignGroupIds(IEnumerable<DataVertex> vertices)
+            {
+                int i = 0;
+                foreach (var v in vertices)
+                {
+                    if (i % 5 == 0)
+                        g++;
+                    v.GroupId = (g);
+                    i++;
+                }
+            }
+
+            public static IEnumerable<AlgorithmGroupParameters<DataVertex, DataEdge>> CreateGroupParameters()
+            {
+                for (int i = 0; i < g; i++)
+                {
+                    yield return new AlgorithmGroupParameters<DataVertex, DataEdge>
+                    {
+                        GroupId = (i + 1),
+                        LayoutAlgorithm =
+                        new RandomLayoutAlgorithm<DataVertex, DataEdge, GraphExample>(
+                            new RandomLayoutAlgorithmParams { Bounds = new Rect(10, 10, 490, 490) }),
+
+                    };
+                };
+            }
+        }
+
+
+        private static (Border, Point) GenerateGroupBorder(Rect rect, string text, Brush brush)
+        {
+            const double _headerHeight = 30;
+            const double _groupInnerPadding = 20;
+            var size = new Point((rect.X - _groupInnerPadding * .5), (rect.Y - _groupInnerPadding * .5 - _headerHeight));
+
+            var border = new Border
+            {
+                Width = rect.Width + _groupInnerPadding,
+                Height = rect.Height + _groupInnerPadding + _headerHeight,
+                Background = brush,
                 Opacity = 1,
                 CornerRadius = new CornerRadius(8),
                 BorderBrush = Brushes.Black,
@@ -109,7 +159,7 @@ namespace ShowcaseApp.WPF.Pages.Mini
                     Height = _headerHeight,
                     Child = new TextBlock
                     {
-                        Text = string.Format("Group {0}", prms.GroupId),
+                        Text = text,
                         VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         Foreground = Brushes.White,
@@ -117,12 +167,16 @@ namespace ShowcaseApp.WPF.Pages.Mini
                         FontSize = 12
                     }
                 }
-            };            
+            };
+            return (border, size);
         }
 
         private void GraphRefresh_OnClick(object sender, RoutedEventArgs e)
         {
-            GenerateGraph();
+            var graph = ShowcaseHelper.GenerateDataGraph(10);
+            Grouper.AssignGroupIds(graph.Vertices);
+            GenerateGraph(graph);
+            zoomControl.ZoomToFill();
         }
     }
 }

@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GraphX.Measure;
-using GraphX.Common;
+﻿using GraphX.Common;
 using GraphX.Common.Enums;
 using GraphX.Common.Exceptions;
 using GraphX.Common.Interfaces;
+using GraphX.Measure;
+using GraphX.Standard.Common.Interfaces;
 using QuikGraph;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GraphX.Logic.Models
 {
-    public partial class GXLogicCore<TVertex, TEdge, TGraph>: IGXLogicCore<TVertex, TEdge, TGraph>
+    public partial class GXLogicCore<TVertex, TEdge, TGraph> : IGXLogicCore<TVertex, TEdge, TGraph>
         where TVertex : class, IGraphXVertex
         where TEdge : class, IGraphXEdge<TVertex>
         where TGraph : class, IMutableBidirectionalGraph<TVertex, TEdge>, new()
@@ -50,14 +51,14 @@ namespace GraphX.Logic.Models
         /// <summary>
         /// Gets is LayoutAlgorithmTypeEnum.Custom (NOT external) layout selected and used. Custom layout used to manualy generate graph.
         /// </summary>
-        public bool IsCustomLayout { get { return DefaultLayoutAlgorithm == LayoutAlgorithmTypeEnum.Custom && ExternalLayoutAlgorithm == null; } }
-        
+        public virtual bool IsCustomLayout { get { return DefaultLayoutAlgorithm == LayoutAlgorithmTypeEnum.Custom && ExternalLayoutAlgorithm == null; } }
+
         /// <summary>
         /// Gets or sets external layout algorithm that will be used instead of the default one.
         /// Negates DefaultLayoutAlgorithm property value if set.
         /// </summary>
         public IExternalLayout<TVertex, TEdge> ExternalLayoutAlgorithm { get; set; }
-        
+
         /// <summary>
         /// Gets or sets external overlap removal algorithm that will be used instead of the default one.
         /// Negates DefaultOverlapRemovalAlgorithm property value if set.
@@ -74,25 +75,31 @@ namespace GraphX.Logic.Models
         /// <summary>
         /// Gets or sets default layout algorithm that will be used on graph generation/relayouting
         /// </summary>
-        public LayoutAlgorithmTypeEnum DefaultLayoutAlgorithm { 
-            get { return _defaultLayoutAlgorithm; } set { _defaultLayoutAlgorithm = value; SetDefaultParams(0); } 
+        public LayoutAlgorithmTypeEnum DefaultLayoutAlgorithm
+        {
+            get { return _defaultLayoutAlgorithm; }
+            set { _defaultLayoutAlgorithm = value; SetDefaultParams(0); }
         }
 
         private OverlapRemovalAlgorithmTypeEnum _defaultOverlapRemovalAlgorithm;
         /// <summary>
         /// Gets or sets default overlap removal algorithm that will be used on graph generation/relayouting
         /// </summary>
-        public OverlapRemovalAlgorithmTypeEnum DefaultOverlapRemovalAlgorithm {
+        public OverlapRemovalAlgorithmTypeEnum DefaultOverlapRemovalAlgorithm
+        {
             get { return _defaultOverlapRemovalAlgorithm; }
-            set { _defaultOverlapRemovalAlgorithm = value; SetDefaultParams(1);}
+            set { _defaultOverlapRemovalAlgorithm = value; SetDefaultParams(1); }
         }
 
         private EdgeRoutingAlgorithmTypeEnum _defaultEdgeRoutingAlgorithm;
         /// <summary>
         /// Gets or sets default edge routing algorithm that will be used on graph generation/relayouting
         /// </summary>
-        public EdgeRoutingAlgorithmTypeEnum DefaultEdgeRoutingAlgorithm { 
-            get { return _defaultEdgeRoutingAlgorithm; } set { _defaultEdgeRoutingAlgorithm = value; SetDefaultParams(2); } }
+        public EdgeRoutingAlgorithmTypeEnum DefaultEdgeRoutingAlgorithm
+        {
+            get { return _defaultEdgeRoutingAlgorithm; }
+            set { _defaultEdgeRoutingAlgorithm = value; SetDefaultParams(2); }
+        }
 
         /// <summary>
         /// Gets or sets default layout algorithm parameters that will be used on graph generation/relayouting
@@ -144,12 +151,12 @@ namespace GraphX.Logic.Models
             if (Filters.Count > 0 && !IsFiltered)
                 OriginalGraph = Graph.CopyToGraph<TGraph, TVertex, TEdge>();
             //reset graph if we remove filtering
-            else if(Filters.Count == 0 && IsFiltered)
+            else if (Filters.Count == 0 && IsFiltered)
                 PopFilters();
             while (Filters.Count > 0)
             {
                 //start applying filter on original graph copy on the 1st pass and then on Graph property each other pass
-                Graph = Filters.Dequeue().ProcessFilter( i==0 ? OriginalGraph.CopyToGraph<TGraph, TVertex, TEdge>() : Graph);
+                Graph = Filters.Dequeue().ProcessFilter(i == 0 ? OriginalGraph.CopyToGraph<TGraph, TVertex, TEdge>() : Graph);
                 i++;
                 IsFiltered = true;
             }
@@ -176,7 +183,7 @@ namespace GraphX.Logic.Models
             Filters.Clear();
             Graph = OriginalGraph;
             IsFilterRemoved = true;
-            IsFiltered = false;        
+            IsFiltered = false;
         }
 
         /// <summary>
@@ -193,19 +200,19 @@ namespace GraphX.Logic.Models
         {
             switch (type)
             {
-                    //layout
+                //layout
                 case 0:
-                    if(DefaultLayoutAlgorithmParams!=null) return;
+                    if (DefaultLayoutAlgorithmParams != null) return;
                     DefaultLayoutAlgorithmParams = AlgorithmFactory.CreateLayoutParameters(DefaultLayoutAlgorithm);
                     return;
-                    //overlap
+                //overlap
                 case 1:
-                    if(DefaultOverlapRemovalAlgorithmParams!=null) return;
+                    if (DefaultOverlapRemovalAlgorithmParams != null) return;
                     DefaultOverlapRemovalAlgorithmParams = AlgorithmFactory.CreateOverlapRemovalParameters(DefaultOverlapRemovalAlgorithm);
                     return;
-                    //edge
+                //edge
                 case 2:
-                    if(DefaultEdgeRoutingAlgorithmParams!=null) return;
+                    if (DefaultEdgeRoutingAlgorithmParams != null) return;
                     DefaultEdgeRoutingAlgorithmParams = AlgorithmFactory.CreateEdgeRoutingParameters(DefaultEdgeRoutingAlgorithm);
                     return;
             }
@@ -265,7 +272,7 @@ namespace GraphX.Logic.Models
 
         public GXLogicCore(TGraph graph)
         {
-            CreateNewAlgorithmFactory();
+            AlgorithmFactory = CreateNewAlgorithmFactory();
             CreateNewAlgorithmStorage(null, null, null);
             Graph = graph;
             EdgeCurvingEnabled = true;
@@ -289,13 +296,12 @@ namespace GraphX.Logic.Models
             _vertexPosSource?.Clear();
         }
 
-
         /// <summary>
         /// Creates new algorithm factory
         /// </summary>
-        public void CreateNewAlgorithmFactory()
+        public virtual IAlgorithmFactory<TVertex, TEdge, TGraph> CreateNewAlgorithmFactory()
         {
-            AlgorithmFactory = new AlgorithmFactory<TVertex, TEdge, TGraph>();
+            return new AlgorithmFactory<TVertex, TEdge, TGraph>();
         }
 
         /// <summary>
@@ -324,7 +330,7 @@ namespace GraphX.Logic.Models
             _vertexPosSource = vertexPositions;
             _vertexSizes = vertexSizes;
             Dictionary<TVertex, Rect> vertexRectangles = null;
-            if(_vertexSizes != null)
+            if (_vertexSizes != null)
                 vertexRectangles = GetVertexSizeRectangles(vertexPositions, vertexSizes);
 
             //setup overlap removal algorythm

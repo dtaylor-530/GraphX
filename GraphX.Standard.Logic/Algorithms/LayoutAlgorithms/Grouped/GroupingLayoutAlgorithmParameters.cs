@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using GraphX.Common.Interfaces;
+using System.Collections.Generic;
 
 namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
 {
@@ -30,11 +30,11 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
         /// <summary>
         /// Gets ort sets parameters list containing parameters for vertex groups
         /// </summary>
-        public List<AlgorithmGroupParameters<TVertex, TEdge>> GroupParametersList { get; set; }
+        public List<IAlgorithmGroupParameters<TVertex, TEdge>> GroupParametersList { get; set; }
 
         public GroupingLayoutAlgorithmParameters()
         {
-            GroupParametersList = new List<AlgorithmGroupParameters<TVertex, TEdge>>();
+            GroupParametersList = new List<IAlgorithmGroupParameters<TVertex, TEdge>>();
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped
         /// </summary>
         /// <param name="paramsList">Params list</param>
         /// <param name="arrangeGroups">Arrange groups of vertices on the last step to exclude group overlaps</param>
-        public GroupingLayoutAlgorithmParameters(List<AlgorithmGroupParameters<TVertex, TEdge>> paramsList, bool arrangeGroups = false)
+        public GroupingLayoutAlgorithmParameters(List<IAlgorithmGroupParameters<TVertex, TEdge>> paramsList, bool arrangeGroups = false)
             : this()
         {
             GroupParametersList = paramsList;

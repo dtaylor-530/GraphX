@@ -1,4 +1,5 @@
 ﻿using GraphX.Common.Enums;
+using System.Drawing;
 
 namespace GraphX.Common.Interfaces
 {
@@ -13,5 +14,7 @@ namespace GraphX.Common.Interfaces
         /// Skip object in algorithm calc and visual control generation
         /// </summary>
         ProcessingOptionEnum SkipProcessing { get; set; }
+
+        Color Color { get; }
     }
 }

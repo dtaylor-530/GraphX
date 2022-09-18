@@ -1,10 +1,25 @@
 ﻿using GraphX.Common.Enums;
 using GraphX.Common.Interfaces;
+using System;
+using System.Drawing;
 
 namespace GraphX.Common.Models
 {
-    public abstract class VertexBase: IGraphXVertex
+    public abstract class VertexBase : IGraphXVertex
     {
+        private readonly Lazy<string> type;
+
+        protected VertexBase(long id = -1)
+        {
+            type = new Lazy<string>(() => GetType().Name);
+            ID = id;
+        }
+
+        /// <summary>
+        /// Unique vertex ID
+        /// </summary>
+        public long ID { get; set; }
+
         /// <summary>
         /// Gets or sets custom angle associated with the vertex
         /// </summary>
@@ -20,18 +35,15 @@ namespace GraphX.Common.Models
         /// </summary>
         public ProcessingOptionEnum SkipProcessing { get; set; }
 
-        protected VertexBase()
-        {
-            ID = -1;
-        }
-        /// <summary>
-        /// Unique vertex ID
-        /// </summary>
-        public long ID { get; set; }
-
         public bool Equals(IGraphXVertex other)
         {
-            return Equals(this, other);
+            return Equals(this.ID, other.ID);
         }
+
+        public virtual Color Color { get; } = Color.Gold;
+
+        public string TypeName => type.Value;
+
+        public override string ToString() => type.Value + " " + ID;
     }
 }

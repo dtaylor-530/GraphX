@@ -57,7 +57,7 @@ namespace GraphX
         #region Attached Dependency Property registrations
 
         public static readonly DependencyProperty XProperty =
-            DependencyProperty.RegisterAttached("X", typeof (double), typeof (GraphAreaBase),
+            DependencyProperty.RegisterAttached("X", typeof(double), typeof(GraphAreaBase),
 #if WPF
                                                  new FrameworkPropertyMetadata(double.NaN,
                                                                                 FrameworkPropertyMetadataOptions.AffectsMeasure |
@@ -81,8 +81,6 @@ namespace GraphX
         public static readonly DependencyProperty FinalYProperty =
             DependencyProperty.RegisterAttached("FinalY", typeof(double), typeof(GraphAreaBase),
                                                  new PropertyMetadata(double.NaN));
-
-
 
         public static readonly DependencyProperty YProperty =
             DependencyProperty.RegisterAttached("Y", typeof(double), typeof(GraphAreaBase),
@@ -135,7 +133,6 @@ namespace GraphX
             if (alsoSetFinal)
                 obj.SetValue(FinalYProperty, value);
         }
-
 
         public static double GetFinalX(DependencyObject obj)
         {
@@ -526,7 +523,6 @@ namespace GraphX
         internal abstract bool EdgeCurvingEnabled { get; }
         internal abstract double EdgeCurvingTolerance { get; }
 
-
         /// <summary>
         /// Get controls related to specified control
         /// </summary>
@@ -547,7 +543,6 @@ namespace GraphX
         /// <param name="edgesType">Edge types to query</param>
         public abstract List<IGraphControl> GetRelatedEdgeControls(IGraphControl ctrl, EdgesType edgesType = EdgesType.All);
 
-
         /// <summary>
         /// Generates and displays edges for specified vertex
         /// </summary>
@@ -557,7 +552,6 @@ namespace GraphX
         public abstract void GenerateEdgesForVertex(VertexControl vc, EdgesType edgeType, Visibility defaultVisibility = Visibility.Visible);
 
         #endregion
-
 
         #region Measure & Arrange
 
@@ -679,7 +673,7 @@ namespace GraphX
                 var left = GetFinalX(child);
                 var top = GetFinalY(child);
 
-                if(child.Visibility == Visibility.Collapsed) continue;
+                if (child.Visibility == Visibility.Collapsed) continue;
 
                 if (double.IsNaN(left) || double.IsNaN(top))
                 {

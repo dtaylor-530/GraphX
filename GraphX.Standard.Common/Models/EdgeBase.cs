@@ -1,6 +1,7 @@
-﻿using GraphX.Measure;
-using GraphX.Common.Enums;
+﻿using GraphX.Common.Enums;
 using GraphX.Common.Interfaces;
+using GraphX.Measure;
+using System;
 
 namespace GraphX.Common.Models
 {
@@ -8,26 +9,33 @@ namespace GraphX.Common.Models
     /// Base class for graph edge
     /// </summary>
     /// <typeparam name="TVertex">Vertex class</typeparam>
-    public abstract class EdgeBase<TVertex> : IGraphXEdge<TVertex>
+    public abstract class EdgeBase<TVertex> : IGraphXEdge<TVertex>, IEquatable<IIdentifiableGraphDataObject>
     {
+        protected readonly string key;
+
         /// <summary>
         /// Skip edge in algo calc and visualization
         /// </summary>
         public ProcessingOptionEnum SkipProcessing { get; set; }
 
-        protected EdgeBase(TVertex source, TVertex target, double weight = 1)
+        protected EdgeBase(TVertex source, TVertex target, double weight = 1, long id = -1) : this(weight, id)
         {
-
             Source = source;
             Target = target;
+
+        }
+
+        protected EdgeBase(double weight = 1, long id = -1)
+        {
             Weight = weight;
-            ID = -1;
+            ID = id;
         }
 
         /// <summary>
         /// Unique edge ID
         /// </summary>
-        public long ID { get; set; }
+        public virtual long ID { get; set; }
+
 
         /// <summary>
         /// Returns true if Source vertex equals Target vertex
@@ -64,9 +72,16 @@ namespace GraphX.Common.Models
         /// </summary>
         public double Weight { get; set; }
 
-		/// <summary>
-		/// Reverse the calculated routing path points.
-		/// </summary>
-		public bool ReversePath { get; set; }
+        /// <summary>
+        /// Reverse the calculated routing path points.
+        /// </summary>
+        public bool ReversePath { get; set; }
+
+        public abstract System.Drawing.Color Color { get; }
+
+        public bool Equals(IIdentifiableGraphDataObject other)
+        {
+            return this.ID == other.ID;
+        }
     }
 }

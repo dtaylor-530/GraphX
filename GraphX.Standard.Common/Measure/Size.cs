@@ -103,5 +103,10 @@ namespace GraphX.Measure
             }
             return (Width.GetHashCode() ^ Height.GetHashCode());
         }
+
+        public override string ToString()
+        {
+            return $"Height: {Height}, Width: {Width}";
+        }
     }
 }

@@ -29,6 +29,7 @@ using GraphX.Common;
 using QuikGraph;
 using Rect = GraphX.Measure.Rect;
 using Size = GraphX.Measure.Size;
+using GraphX.Standard.Common.Interfaces;
 
 namespace GraphX.Controls
 {
@@ -55,7 +56,6 @@ namespace GraphX.Controls
         /// Also use corresponding methods to modify item collections.
         /// </summary>
         //private new UIElementCollection Children { get { return null; } }
-
 
         /// <summary>
         /// Gets or sets in which order GraphX controls are drawn
@@ -169,7 +169,7 @@ namespace GraphX.Controls
         /// <param name="control"></param>
         public virtual void AddCustomChildControl(UIElement control)
         {
-            if(!Children.Contains(control))
+            if (!Children.Contains(control))
                 Children.Add(control);
             SetX(control, 0);
             SetY(control, 0);
@@ -289,7 +289,6 @@ namespace GraphX.Controls
                     edgectrl = ControlFactory.CreateEdgeControl(ctrl3, ctrl, edge);
                     base.Children.Add(edgectrl);
 
-
                     base.Children.Add(ctrl);
                     base.Children.Add(ctrl2);
                     base.Children.Add(ctrl3);*/
@@ -314,7 +313,6 @@ namespace GraphX.Controls
                 return rect.Contains(position.ToGraphX());
             });
         }
-
 
         /// <summary>
         /// Returns all existing VertexControls added into the layout as new Array
@@ -489,7 +487,6 @@ namespace GraphX.Controls
             }
         }
 
-
         /// <summary>
         /// Usability extension method.
         /// Add data vertex to graph and vertex control to layout. LogicCore::Graph should be assigned or exception will be thrown.
@@ -638,7 +635,6 @@ namespace GraphX.Controls
         protected readonly HashSet<long> DataIdsCollection = new HashSet<long>();
         protected readonly HashSet<long> EdgeDataIdsCollection = new HashSet<long>();
 
-
         #endregion
 
         #region GenerateGraph
@@ -659,7 +655,7 @@ namespace GraphX.Controls
         {
             var labels = VertexLabelFactory.CreateLabel(vertexControl);
             if (labels == null) return;
-            if (labels.Any(l=> !(l is IVertexLabelControl)))
+            if (labels.Any(l => !(l is IVertexLabelControl)))
                 throw new GX_InvalidDataException("Generated vertex label should implement IVertexLabelControl interface");
             labels.ForEach(l =>
             {
@@ -685,9 +681,9 @@ namespace GraphX.Controls
         {
             var labels = EdgeLabelFactory.CreateLabel(edgeControl);
             if (labels == null) return;
-            if (labels.Any(a=> !(a is IEdgeLabelControl)))
+            if (labels.Any(a => !(a is IEdgeLabelControl)))
                 throw new GX_InvalidDataException("Generated edge label should implement IEdgeLabelControl interface");
-            
+
             labels.ForEach(l =>
             {
                 AddCustomChildControl(l);
@@ -714,7 +710,6 @@ namespace GraphX.Controls
             }
             return vertexSizes;
         }
-
 
         public Dictionary<TVertex, Size> GetVertexSizesAndPositions(out IDictionary<TVertex, Measure.Point> vertexPositions)
         {
@@ -824,7 +819,7 @@ namespace GraphX.Controls
         /// Remove all visuals with no keys in data graph and add all visuals that has keys in data graph.
         /// Default value is True.
         /// </summary>
-        public bool EnableVisualsRenewOnFiltering{ get; set; } = true;
+        public bool EnableVisualsRenewOnFiltering { get; set; } = true;
 
 #if WPF
         protected virtual void _relayoutGraph(CancellationToken cancellationToken)
@@ -865,7 +860,7 @@ namespace GraphX.Controls
 
                     LogicCore.Graph.Vertices.ForEach(v =>
                     {
-                        if(!_vertexlist.ContainsKey(v))
+                        if (!_vertexlist.ContainsKey(v))
                             AddVertex(v, ControlFactory.CreateVertexControl(v));
                     });
 
@@ -1178,7 +1173,6 @@ namespace GraphX.Controls
 #endif
         }
 
-
 #if METRO
         /// <summary>
         /// Generate visual graph asynchronously
@@ -1299,7 +1293,6 @@ namespace GraphX.Controls
 
         #endregion
 
-
         #region Methods for EDGE and VERTEX properties set
 
         protected void ReapplyVertexVisualProperties()
@@ -1385,7 +1378,7 @@ namespace GraphX.Controls
         {
             //_svShowEdgeLabels = isEnabled;
             foreach (var item in _edgeslist.Values)
-                item.EdgeLabelControls.Cast<FrameworkElement>().ForEach(l=> l.SetCurrentValue(EdgeLabelControl.ShowLabelProperty, isEnabled));
+                item.EdgeLabelControls.Cast<FrameworkElement>().ForEach(l => l.SetCurrentValue(EdgeLabelControl.ShowLabelProperty, isEnabled));
 #if WPF
             InvalidateVisual();
 #endif
@@ -1415,7 +1408,7 @@ namespace GraphX.Controls
         {
             //_svAlignEdgeLabels = isEnabled;
             foreach (var item in _edgeslist.Values)
-                item.EdgeLabelControls.ForEach(l=> l.AlignToEdge = isEnabled);
+                item.EdgeLabelControls.ForEach(l => l.AlignToEdge = isEnabled);
 #if WPF
             InvalidateVisual();
 #endif
@@ -1698,8 +1691,6 @@ namespace GraphX.Controls
             }
         }
 
-
-
         #endregion
 
         #region GetRelatedControls
@@ -1738,7 +1729,7 @@ namespace GraphX.Controls
             }
             var ec = ctrl as EdgeControl;
             if (ec == null) return list;
-            
+
             var edge = (TEdge)ec.Edge;
             if (edge.Target != null && _vertexlist.ContainsKey(edge.Target))
             {
@@ -1748,7 +1739,7 @@ namespace GraphX.Controls
             {
                 list.Add(_vertexlist[edge.Source]);
             }
-            
+
             return list;
         }
 
@@ -1869,7 +1860,7 @@ namespace GraphX.Controls
             var dlist = new List<GraphSerializationData>();
             foreach (var item in VertexList) //ALWAYS serialize vertices first
             {
-                dlist.Add(new GraphSerializationData { Position = item.Value.GetPositionGraphX(), Data = item.Key, IsVisible = item.Value.Visibility == Visibility.Visible, HasLabel = item.Value.VertexLabelControl != null});
+                dlist.Add(new GraphSerializationData { Position = item.Value.GetPositionGraphX(), Data = item.Key, IsVisible = item.Value.Visibility == Visibility.Visible, HasLabel = item.Value.VertexLabelControl != null });
                 if (item.Key.ID == -1) throw new GX_InvalidDataException("ExtractSerializationData() -> All vertex datas must have positive unique ID!");
             }
             foreach (var item in EdgesList)
@@ -1990,20 +1981,28 @@ namespace GraphX.Controls
             string fileType = itype.ToString();
             switch (itype)
             {
-                case ImageType.PNG: fileExt = "*.png";
+                case ImageType.PNG:
+                    fileExt = "*.png";
                     break;
-                case ImageType.JPEG: fileExt = "*.jpg";
+                case ImageType.JPEG:
+                    fileExt = "*.jpg";
                     break;
-                case ImageType.BMP: fileExt = "*.bmp";
+                case ImageType.BMP:
+                    fileExt = "*.bmp";
                     break;
-                case ImageType.GIF: fileExt = "*.gif";
+                case ImageType.GIF:
+                    fileExt = "*.gif";
                     break;
-                case ImageType.TIFF: fileExt = "*.tiff";
+                case ImageType.TIFF:
+                    fileExt = "*.tiff";
                     break;
                 default: throw new GX_InvalidDataException("ExportAsImage() -> Unknown output image format specified!");
             }
 
-            var dlg = new SaveFileDialog { Filter = String.Format("{0} Image File ({1})|{1}", fileType, fileExt), Title =
+            var dlg = new SaveFileDialog
+            {
+                Filter = String.Format("{0} Image File ({1})|{1}", fileType, fileExt),
+                Title =
                 $"Exporting graph as {fileType} image..."
             };
             if (dlg.ShowDialog() == true)
@@ -2017,7 +2016,6 @@ namespace GraphX.Controls
         {
             PrintHelper.ExportToImage(this, new Uri(filename, UriKind.Absolute), itype, useZoomControlSurface, dpi, quality);
         }
-
 
 #if WPF
 
@@ -2085,7 +2083,7 @@ namespace GraphX.Controls
             }
             InvalidateMeasure();
             UpdateLayout();
-            EdgesList.Values.ForEach(a=> a.UpdateEdge());
+            EdgesList.Values.ForEach(a => a.UpdateEdge());
 #endif
         }
 

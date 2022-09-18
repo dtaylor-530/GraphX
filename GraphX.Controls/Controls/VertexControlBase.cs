@@ -16,6 +16,7 @@ using GraphX.Controls.Models;
 using GraphX.Common;
 using GraphX.Common.Enums;
 using Rect = GraphX.Measure.Rect;
+using GraphX.Common.Exceptions;
 
 namespace GraphX.Controls
 {
@@ -23,6 +24,8 @@ namespace GraphX.Controls
     [TemplatePart(Name = "PART_vcproot", Type = typeof(Panel))]
     public abstract class VertexControlBase : Control, IGraphControl
     {
+        private List<IVertexConnectionPoint> vertexConnectionPointsList;
+
         protected internal IVertexLabelControl VertexLabelControl;
         /// <summary>
         /// Fires when new label is attached to VertexControl
@@ -55,8 +58,7 @@ namespace GraphX.Controls
         }
 
         protected VertexControlBase()
-        {
-            VertexConnectionPointsList = new List<IVertexConnectionPoint>();
+        {     
         }
 
         /// <summary>
@@ -69,8 +71,8 @@ namespace GraphX.Controls
             RootArea.GetRelatedControls(this, GraphControlType.Edge, EdgesType.All).ForEach(a =>
             {
                 //if (a is EdgeControlBase)
-               //     ((EdgeControlBase)a).SetVisibility(Visibility.Collapsed);
-               // else
+                //     ((EdgeControlBase)a).SetVisibility(Visibility.Collapsed);
+                // else
                 a.Visibility = Visibility.Collapsed;
             });
         }
@@ -84,18 +86,34 @@ namespace GraphX.Controls
             SetConnectionPointsVisibility(true);
             RootArea.GetRelatedControls(this, GraphControlType.Edge, EdgesType.All).ForEach(a =>
             {
-                if(a is EdgeControlBase)
-                    ((EdgeControlBase)a).SetVisibility(Visibility.Visible);
+                if (a is EdgeControlBase controlBase)
+                    controlBase.SetVisibility(Visibility.Visible);
                 else a.Visibility = Visibility.Visible;
             });
         }
 
-#region Properties
+        #region Properties
 
         /// <summary>
         /// List of found vertex connection points
         /// </summary>
-        public List<IVertexConnectionPoint> VertexConnectionPointsList { get; protected set; }
+        public List<IVertexConnectionPoint> VertexConnectionPointsList
+        {
+            get
+            {
+                if (vertexConnectionPointsList == null)
+                    vertexConnectionPointsList = GetPoints();
+                return vertexConnectionPointsList;
+            }
+        }
+
+        List<IVertexConnectionPoint> GetPoints()
+        {
+            var vertexConnectionPointsList = this.FindDescendantsOfType<IVertexConnectionPoint>().ToList();
+            if (vertexConnectionPointsList.GroupBy(x => x.Id).Count(group => @group.Count() > 1) > 0)
+                throw new GX_InvalidDataException("Vertex connection points in VertexControl template must have unique Id!");
+            return vertexConnectionPointsList;
+        }
 
         /// <summary>
         /// Provides settings for event calls within single vertex control
@@ -115,7 +133,7 @@ namespace GraphX.Controls
             set
             {
                 _labelAngle = value;
-                if (VertexLabelControl != null) 
+                if (VertexLabelControl != null)
                     VertexLabelControl.Angle = _labelAngle;
             }
         }
@@ -171,9 +189,9 @@ namespace GraphX.Controls
             get { return (bool)GetValue(ShowLabelProperty); }
             set { SetValue(ShowLabelProperty, value); }
         }
-#endregion
+        #endregion
 
-#region Position methods
+        #region Position methods
 
         /// <summary>
         /// Set attached coordinates X and Y
@@ -215,7 +233,7 @@ namespace GraphX.Controls
             return round ? new Measure.Point(final ? (int)GraphAreaBase.GetFinalX(this) : (int)GraphAreaBase.GetX(this), final ? (int)GraphAreaBase.GetFinalY(this) : (int)GraphAreaBase.GetY(this)) : new Measure.Point(final ? GraphAreaBase.GetFinalX(this) : GraphAreaBase.GetX(this), final ? GraphAreaBase.GetFinalY(this) : GraphAreaBase.GetY(this));
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Get vertex center position
@@ -264,7 +282,7 @@ namespace GraphX.Controls
         /// </summary>
         public void DetachLabel()
         {
-            if(VertexLabelControl is IAttachableControl<VertexControl>)
+            if (VertexLabelControl is IAttachableControl<VertexControl>)
                 ((IAttachableControl<VertexControl>)VertexLabelControl).Detach();
             VertexLabelControl = null;
             OnLabelDetached();

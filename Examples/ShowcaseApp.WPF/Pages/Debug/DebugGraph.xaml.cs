@@ -8,11 +8,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using GraphX;
+using GraphX.Common;
+using GraphX.Common.Enums;
 using GraphX.Controls;
 using GraphX.Controls.Animations;
 using GraphX.Controls.Models;
-using GraphX.Common;
-using GraphX.Common.Enums;
 using GraphX.Logic.Algorithms.LayoutAlgorithms;
 using GraphX.Logic.Algorithms.LayoutAlgorithms.Grouped;
 using GraphX.Logic.Algorithms.OverlapRemoval;
@@ -28,7 +28,8 @@ namespace ShowcaseApp.WPF.Pages
     public partial class DebugGraph : UserControl, INotifyPropertyChanged
     {
         private DebugModeEnum _debugMode;
-        public DebugModeEnum DebugMode { get { return _debugMode; } set { _debugMode = value; OnPropertyChanged("DebugMode"); } }
+        public DebugModeEnum DebugMode
+        { get { return _debugMode; } set { _debugMode = value; OnPropertyChanged("DebugMode"); } }
 
         public DebugGraph()
         {
@@ -47,15 +48,15 @@ namespace ShowcaseApp.WPF.Pages
             dg_zoomctrl.ZoomStep = 100;
         }
 
-        void butGroupedGraph_Click(object sender, RoutedEventArgs e)
+        private void butGroupedGraph_Click(object sender, RoutedEventArgs e)
         {
             CreateNewArea();
             dg_Area.LogicCore.Graph = ShowcaseHelper.GenerateDataGraph(10, true);
             dg_Area.LogicCore.Graph.Vertices.Take(5).ForEach(a => a.GroupId = 1);
-            dg_Area.LogicCore.Graph.Vertices.Where(a=> a.GroupId == 0).ForEach(a => a.GroupId = 2);
+            dg_Area.LogicCore.Graph.Vertices.Where(a => a.GroupId == 0).ForEach(a => a.GroupId = 2);
             dg_Area.LogicCore.DefaultOverlapRemovalAlgorithm = OverlapRemovalAlgorithmTypeEnum.None;
             //generate group params
-            var prms = new List<AlgorithmGroupParameters<DataVertex, DataEdge>>
+            var prms = new List<IAlgorithmGroupParameters<DataVertex, DataEdge>>
             {
                 new AlgorithmGroupParameters<DataVertex, DataEdge>
                 {
@@ -63,7 +64,7 @@ namespace ShowcaseApp.WPF.Pages
                     LayoutAlgorithm =
                         new RandomLayoutAlgorithm<DataVertex, DataEdge, GraphExample>(
                             new RandomLayoutAlgorithmParams {Bounds = new Rect(0, 0, 500, 500)}),
-                            
+
                    // ZoneRectangle = new Rect(0, 0, 500, 500)
                 },
                 new AlgorithmGroupParameters<DataVertex, DataEdge>
@@ -103,15 +104,15 @@ namespace ShowcaseApp.WPF.Pages
             dg_zoomctrl.ZoomToFill();
         }
 
-        void dg_zoomctrl_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void dg_zoomctrl_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Zoom")
             {
-                Debug.WriteLine("Zoom: "+ dg_zoomctrl.Zoom);
+                Debug.WriteLine("Zoom: " + dg_zoomctrl.Zoom);
             }
         }
 
-        void CreateNewArea()
+        private void CreateNewArea()
         {
             if (dg_Area != null)
             {
@@ -124,20 +125,19 @@ namespace ShowcaseApp.WPF.Pages
             {
                 Name = "dg_Area",
                 LogicCore = new LogicCoreExample(),
-                Resources = new ResourceDictionary {Source = new Uri("/Templates/Debug/TestTemplates.xaml", UriKind.RelativeOrAbsolute)}
+                Resources = new ResourceDictionary { Source = new Uri("/Templates/Debug/TestTemplates.xaml", UriKind.RelativeOrAbsolute) }
             };
             dg_Area.SetVerticesDrag(true, true);
             dg_zoomctrl.Content = dg_Area;
             dg_Area.ShowAllEdgesLabels(false);
-
         }
 
-        void dg_Area_GenerateGraphFinished(object sender, EventArgs e)
+        private void dg_Area_GenerateGraphFinished(object sender, EventArgs e)
         {
             dg_zoomctrl.ZoomToFill();
         }
 
-        void butEdgeLabels_Click(object sender, RoutedEventArgs e)
+        private void butEdgeLabels_Click(object sender, RoutedEventArgs e)
         {
             CreateNewArea();
 
@@ -148,25 +148,23 @@ namespace ShowcaseApp.WPF.Pages
             dg_Area.LogicCore.Graph = ShowcaseHelper.GenerateDataGraph(2, false);
 
             var vlist = dg_Area.LogicCore.Graph.Vertices.ToList();
-            var edge = new DataEdge(vlist[0], vlist[1]) {Text = "Testing edge labels..."};
+            var edge = new DataEdge(vlist[0], vlist[1]) { Text = "Testing edge labels..." };
             dg_Area.LogicCore.Graph.AddEdge(edge);
 
-            dg_Area.PreloadGraph(new Dictionary<DataVertex, Point> { {vlist[0], new Point()}, {vlist[1], new Point(0, 200)}});
+            dg_Area.PreloadGraph(new Dictionary<DataVertex, Point> { { vlist[0], new Point() }, { vlist[1], new Point(0, 200) } });
             dg_Area.VertexList.Values.ToList().ForEach(a => a.SetConnectionPointsVisibility(false));
         }
 
-        void butVCP_Click(object sender, RoutedEventArgs e)
+        private void butVCP_Click(object sender, RoutedEventArgs e)
         {
             CreateNewArea();
-            dg_Area.VertexList.Values.ToList().ForEach(a=> a.SetConnectionPointsVisibility(true));
+            dg_Area.VertexList.Values.ToList().ForEach(a => a.SetConnectionPointsVisibility(true));
             dg_Area.LogicCore.Graph = ShowcaseHelper.GenerateDataGraph(6, false);
             var vlist = dg_Area.LogicCore.Graph.Vertices.ToList();
             var edge = new DataEdge(vlist[0], vlist[1]) { SourceConnectionPointId = 1, TargetConnectionPointId = 1 };
             dg_Area.LogicCore.Graph.AddEdge(edge);
             edge = new DataEdge(vlist[0], vlist[0]) { SourceConnectionPointId = 1, TargetConnectionPointId = 1 };
             dg_Area.LogicCore.Graph.AddEdge(edge);
-           
-                
 
             dg_Area.LogicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.ISOM;
             dg_Area.LogicCore.DefaultOverlapRemovalAlgorithm = OverlapRemovalAlgorithmTypeEnum.FSA;
@@ -177,8 +175,8 @@ namespace ShowcaseApp.WPF.Pages
 
             dg_Area.GenerateGraph(true);
             var vertex = dg_Area.VertexList[edge.Target];
-            
-            var newVcp = new StaticVertexConnectionPoint {Id = 5, Margin = new Thickness(2,0,0,0)};
+
+            var newVcp = new StaticVertexConnectionPoint { Id = 5, Margin = new Thickness(2, 0, 0, 0) };
             var cc = new Border
             {
                 Margin = new Thickness(2, 0, 0, 0),
@@ -193,12 +191,12 @@ namespace ShowcaseApp.WPF.Pages
             dg_Area.UpdateAllEdges(true);
         }
 
-        void butRelayout_Click(object sender, RoutedEventArgs e)
+        private void butRelayout_Click(object sender, RoutedEventArgs e)
         {
-            dg_Area.RelayoutGraph(true);    
+            dg_Area.RelayoutGraph(true);
         }
 
-        void butGeneral_Click(object sender, RoutedEventArgs e)
+        private void butGeneral_Click(object sender, RoutedEventArgs e)
         {
             CreateNewArea();
             dg_Area.LogicCore.Graph = ShowcaseHelper.GenerateDataGraph(2, false);
@@ -208,24 +206,24 @@ namespace ShowcaseApp.WPF.Pages
             //dg_Area.LogicCore.Graph.AddEdge(new DataEdge(vlist[0], vlist[2]) { ArrowTarget = true });
             //dg_Area.LogicCore.Graph.AddEdge(new DataEdge(vlist[0], vlist[3]) { ArrowTarget = true });
             //dg_Area.LogicCore.Graph.AddEdge(new DataEdge(vlist[0], vlist[4]) { ArrowTarget = true });
-            
-            
+
             dg_Area.LogicCore.EdgeCurvingEnabled = true;
             dg_Area.LogicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.EfficientSugiyama;
             dg_Area.SetVerticesMathShape(VertexShape.Ellipse);
             dg_Area.GenerateGraph(true);
-            
+
             dg_Area.VertexList.Values.ToList().ForEach(a => a.SetConnectionPointsVisibility(false));
         }
 
-        void butEdgePointer_Click(object sender, RoutedEventArgs e)
+        private void butEdgePointer_Click(object sender, RoutedEventArgs e)
         {
             CreateNewArea();
             dg_Area.VertexList.Values.ToList().ForEach(a => a.SetConnectionPointsVisibility(false));
         }
 
         #region DebugMode switches
-        void cbDebugMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void cbDebugMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (DebugMode)
             {
@@ -234,6 +232,7 @@ namespace ShowcaseApp.WPF.Pages
                     CleanDMERCurving();
                     CleanDMER();
                     break;
+
                 case DebugModeEnum.Animations:
                     CleanDMERCurving();
                     CleanDMER();
@@ -242,11 +241,13 @@ namespace ShowcaseApp.WPF.Pages
                     dg_Area.MouseOverAnimation = AnimationFactory.CreateMouseOverAnimation(MouseOverAnimation.Scale);
                     dg_Area.DeleteAnimation = AnimationFactory.CreateDeleteAnimation(DeleteAnimation.Fade);
                     break;
+
                 case DebugModeEnum.EdgeRoutingEnabled:
                     CleanDMAnimations();
                     CleanDMERCurving();
                     dg_Area.LogicCore.DefaultEdgeRoutingAlgorithm = EdgeRoutingAlgorithmTypeEnum.SimpleER;
                     break;
+
                 case DebugModeEnum.EdgeRoutingWithCurvingEnabled:
                     CleanDMAnimations();
                     CleanDMER();
@@ -275,8 +276,8 @@ namespace ShowcaseApp.WPF.Pages
             dg_Area.MouseOverAnimation = null;
             dg_Area.DeleteAnimation = null;
         }
-        
-        #endregion
+
+        #endregion DebugMode switches
 
         #region INotifyPropertyChanged
 
@@ -287,7 +288,8 @@ namespace ShowcaseApp.WPF.Pages
             var handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
-        #endregion
+
+        #endregion INotifyPropertyChanged
     }
 
     public enum DebugModeEnum

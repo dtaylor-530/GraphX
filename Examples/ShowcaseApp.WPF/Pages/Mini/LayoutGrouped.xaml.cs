@@ -30,7 +30,7 @@ namespace ShowcaseApp.WPF.Pages.Mini
             graphArea.SideExpansionSize = new Size(80, 80);
         }
 
-        void ControlLoaded(object sender, RoutedEventArgs e)
+        private void ControlLoaded(object sender, RoutedEventArgs e)
         {
             var graph = ShowcaseHelper.GenerateDataGraph(10);
             Grouper.AssignGroupIds(graph.Vertices);
@@ -55,16 +55,11 @@ namespace ShowcaseApp.WPF.Pages.Mini
                 .Select(a => GenerateGroupBorder(a.ZoneRectangle.Value, string.Format("Group {0}", a.GroupId), PickRandomBrush(rand))))
 
             {
-
                 graphArea.InsertCustomChildControl(0, rect);
                 GraphAreaBase.SetX(rect, size.X);
                 GraphAreaBase.SetY(rect, size.Y);
             }
-
-   
         }
-
-
 
         private static Brush PickRandomBrush(Random rnd)
         {
@@ -72,7 +67,7 @@ namespace ShowcaseApp.WPF.Pages.Mini
             return (Brush)properties[rnd.Next(properties.Length)].GetValue(null, null);
         }
 
-        private static LogicCoreExample GetLogicCore(List<AlgorithmGroupParameters<DataVertex, DataEdge>> prms, GraphExample graph, bool arrangeGroups)
+        private static LogicCoreExample GetLogicCore(List<IAlgorithmGroupParameters<DataVertex, DataEdge>> prms, GraphExample graph, bool arrangeGroups)
         {
             var logicCore = new LogicCoreExample()
             {
@@ -91,7 +86,7 @@ namespace ShowcaseApp.WPF.Pages.Mini
         }
 
         private static GroupingLayoutAlgorithmParameters<DataVertex, DataEdge> CreateLayoutAlgorithmParameters(
-            List<AlgorithmGroupParameters<DataVertex, DataEdge>> prms,
+            List<IAlgorithmGroupParameters<DataVertex, DataEdge>> prms,
             IAlgorithmFactory<DataVertex, DataEdge, BidirectionalGraph<DataVertex, DataEdge>> factory,
             bool arrangeGroups)
         {
@@ -102,10 +97,9 @@ namespace ShowcaseApp.WPF.Pages.Mini
             };
         }
 
-
-        static class Grouper
+        private static class Grouper
         {
-            static int g = 0;
+            private static int g = 0;
 
             public static void AssignGroupIds(IEnumerable<DataVertex> vertices)
             {
@@ -119,7 +113,7 @@ namespace ShowcaseApp.WPF.Pages.Mini
                 }
             }
 
-            public static IEnumerable<AlgorithmGroupParameters<DataVertex, DataEdge>> CreateGroupParameters()
+            public static IEnumerable<IAlgorithmGroupParameters<DataVertex, DataEdge>> CreateGroupParameters()
             {
                 for (int i = 0; i < g; i++)
                 {
@@ -129,12 +123,10 @@ namespace ShowcaseApp.WPF.Pages.Mini
                         LayoutAlgorithm =
                         new RandomLayoutAlgorithm<DataVertex, DataEdge, GraphExample>(
                             new RandomLayoutAlgorithmParams { Bounds = new Rect(10, 10, 490, 490) }),
-
                     };
                 };
             }
         }
-
 
         private static (Border, Point) GenerateGroupBorder(Rect rect, string text, Brush brush)
         {

@@ -109,6 +109,11 @@ namespace GraphX.Controls
         {
             return new Point(point.X, point.Y);
         }
+         
+        public static Measure.Point FromWindows(this Point point)
+        {
+            return new Measure.Point(point.X, point.Y);
+        }
 
         public static Point ToWindows(this Measure.Vector point)
         {

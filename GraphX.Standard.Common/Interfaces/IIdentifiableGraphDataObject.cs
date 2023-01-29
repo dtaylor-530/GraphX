@@ -14,7 +14,5 @@ namespace GraphX.Common.Interfaces
         /// Skip object in algorithm calc and visual control generation
         /// </summary>
         ProcessingOptionEnum SkipProcessing { get; set; }
-
-        Color Color { get; }
     }
 }

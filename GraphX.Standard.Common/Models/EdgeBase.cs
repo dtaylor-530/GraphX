@@ -36,6 +36,7 @@ namespace GraphX.Common.Models
         /// </summary>
         public virtual long ID { get; set; }
 
+        public virtual object Content { get; }
 
         /// <summary>
         /// Returns true if Source vertex equals Target vertex
@@ -76,8 +77,6 @@ namespace GraphX.Common.Models
         /// Reverse the calculated routing path points.
         /// </summary>
         public bool ReversePath { get; set; }
-
-        public abstract System.Drawing.Color Color { get; }
 
         public bool Equals(IIdentifiableGraphDataObject other)
         {

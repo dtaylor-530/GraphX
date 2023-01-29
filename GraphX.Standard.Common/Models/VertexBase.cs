@@ -5,7 +5,14 @@ using System.Drawing;
 
 namespace GraphX.Common.Models
 {
-    public abstract class VertexBase : IGraphXVertex
+    public class VertexBase : VertexBase<object>
+    {
+        protected VertexBase(long id = -1) : base(id)
+        {
+        }
+    }
+
+    public class VertexBase<T> : IGraphXVertex
     {
         private readonly Lazy<string> type;
 
@@ -25,10 +32,14 @@ namespace GraphX.Common.Models
         /// </summary>
         public double Angle { get; set; }
 
+        public GraphX.Measure.Point Position { get; set; }
+
         /// <summary>
         /// Gets or sets optional group identificator
         /// </summary>
         public int GroupId { get; set; }
+
+        public virtual T Content { get; set; }
 
         /// <summary>
         /// Skip vertex in algo calc and visualization

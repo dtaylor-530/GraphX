@@ -17,7 +17,5 @@ namespace GraphX.Controls.DesignerExampleData
         }
 
         public string Text { get; set; }
-
-        public override Color Color { get; } = Color.Black;
     }
 }
